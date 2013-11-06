@@ -1,0 +1,19 @@
+{
+  "name": "nko4-mesolabs",
+  "version": "0.0.0",
+  "description": "mesolabs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nko4/mesolabs.git"
+  },
+  "dependencies": {
+    "nko": "*"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
