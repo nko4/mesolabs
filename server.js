@@ -31,6 +31,7 @@ if (!isProduction) {
 
 app.get('/', routes.index);
 app.post('/new', routes.new);
+app.get('/join', routes.join);
 app.get('/auth/twitter', auth.passport.authenticate('twitter'));
 app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: "/"}), routes.callback);
 app.get('/auth/logout', routes.logout);
@@ -79,8 +80,8 @@ io.sockets.on("connection", function(socket) {
     if(!room) return;
     var timestamp = getTimestamp();
     console.log(message, timestamp);
-    socket.broadcast.to(room).emit("chat_message", username, message, timestamp);
-    socket.emit("chat_message", username, message, timestamp);
+    socket.broadcast.to(room).emit("chat_message", auth.passport.session.user, message, timestamp);
+    socket.emit("chat_message", auth.passport.session.user, message, timestamp);
     //TODO: 何の情報を送受信するべきか要相談
   });
 
@@ -89,13 +90,17 @@ io.sockets.on("connection", function(socket) {
     if (!room) return;
     var timestamp = getTimestamp();
     socket.join(room);
+    var user = {
+      name: auth.passport.session.user,
+      icon: auth.passport.session.icon
+    };
     var data = {
       position: startLocation,
-      driver: auth.passport.session.user,
+      driver: user,
       party: [],
       viewer: 0,
       pov: {heading: 0, pitch: 0}
-    }
+    };
     rooms[room] = data;
     console.log(rooms[room]);
   });
@@ -106,19 +111,34 @@ io.sockets.on("connection", function(socket) {
     console.log("view: ", room);
     rooms[room].viewer++;
     socket.join(room);
+    socket.broadcast.to(room).emit("joined", rooms[room].driver, rooms[room].party);
+    socket.emit("joined", rooms[room].driver, rooms[room].party);
   });
 
   socket.on("join", function(room) {
     console.log("join", socket.id, room);
     socket.join(room);
-    rooms[room].party.push(auth.passport.session.user);
-    //TODO: 入室メッセージを流す？
+    var user = {
+      name: auth.passport.session.user,
+      icon: auth.passport.session.icon
+    };
+    rooms[room].party.push(user);
+    socket.broadcast.to(room).emit("joined", rooms[room].driver, rooms[room].party);
+    socket.emit("joined", rooms[room].driver, rooms[room].party);
   });
 
   socket.on("disconnect", function() {
     for(var room in io.sockets.manager.roomClients[socket.id]){
       //socket.leave(room);
       if(room) {
+        socket.leave(room);
+        if (auth.passport.session.user && rooms[room]) {
+          var array = rooms[room].party.filter(function(v) {
+            return (v.user !== auth.passport.session.user);
+          });
+          rooms[room].party = array;
+          socket.broadcast.to(room).emit("joined", rooms.driver, rooms[room].party);
+        }
         //TODO: 特定ルームに入っている場合、退室メッセージを流す？
         console.log(socket.id + " disconnected from " + room);
       }

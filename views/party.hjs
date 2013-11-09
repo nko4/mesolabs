@@ -65,89 +65,23 @@
         return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     }
 
-    function createPanorama(latlng, heading) {
+    function createPanorama(latlng, pov) {
       var panoOptions = {
         position: latlng,
         addressControlOptions: {
           position: google.maps.ControlPosition.TOP_RIGHT
         },
-        linksControl: true,
+        linksControl: false,
         panControl: true,
         zoomControl: false,
         enableCloseButton: false,
         clickToGo: false,
         disableDoubleClickZoom: false,
         scrollwheel: false,
-        pov: {heading: heading, pitch: 0},
+        pov: pov,
         visible: true
       };
       return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
-    }
-
-    function addPositionChangedListener(panorama, map) {
-      var timer = null;
-      var prevPano = null;
-      // 移動したときの処理
-      google.maps.event.addListener(panorama, "position_changed", function () {
-        timer && clearTimeout(timer);
-        // 右下マップの位置を更新
-        map.setCenter(panorama.getPosition());
-        // 分かれ道かどうか
-        var links = panorama.getLinks();
-        // if (links && links.length == 2) {
-        //   console.log("links.length == 2");
-        //   // 直進できる道の場合
-        //   console.log("PrevPano: " + prevPano);
-        //   console.log("NowPano: " + panorama.getPano());
-        //   console.log("Links[0].pano: " + links[0].pano);
-        //   console.log("Links[1].pano: " + links[1].pano);
-
-        //   var nextPano = links[links[0].pano == prevPano ? 1 : 0].pano;
-        //   console.log("NextPano: " + nextPano);
-        //   timer = setTimeout(function() {
-        //     console.log("fired.");
-        //     prevPano = panorama.getPano();
-        //     panorama.setPano(nextPano);
-        //   }, 10000);
-        // }
-//    if (links && links.length < 3) {
-//      var next = null;
-//      var heading = panorama.getPov().heading % 360;
-//      console.log("Now heading: " + heading);
-//      var delta = 180;
-//      links.forEach(function(link, i) {
-//        var tmp = Math.abs(heading - link.heading);
-//        console.log("tmp正規化前: " + tmp);
-//        if (tmp > 180) {
-//          tmp = 360 - tmp;
-//        }
-//        console.log("tmp正規化後: " + tmp);
-//        if (tmp <= delta) {
-//          delta = tmp;
-//          next = link;
-//        }
-//        console.log(delta);
-//      });
-//      console.log(delta);
-//      console.log(next);
-//      timer = setTimeout(function() {
-//        forward();
-//        panorama.setPano(link[0].pano);
-//      }, 1000);
-//    }
-        //TODO: 他のメンバに新しい位置を通知する
-        if(connection.socket) {
-          connection.socket.emit("moved", connection.pathname, panorama.getPosition(), getTimestamp());
-        }
-      });
-    }
-
-    function addPovChangedListener(panorama) {
-      // 視点を変更したときの処理
-      google.maps.event.addListener(panorama, "pov_changed", function () {
-        //TODO: 他のメンバに新しい視点を通知する
-        connection.socket.emit("view_changed", connection.pathname, panorama.getPov(), getTimestamp());
-      });
     }
 
     function forward() {
@@ -168,25 +102,29 @@
     }
 
     function initialize() {
-      var geocoder = new google.maps.Geocoder;
-      var request = {address: "{{start}}"};
-      console.log(request);
+      var latlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
+      console.log(latlng);
+      var map = createMap(latlng);
+      var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
+      var panorama = createPanorama(latlng, pov);
+      map.setStreetView(panorama);
 
-      geocoder.geocode(request, function (results, status) {
-        if (status != google.maps.GeocoderStatus.OK) {
-          return console.log("Geocode failed for the following reason: " + status);
-        }
-        var startLatlng = results[0].geometry.location;
-
-        connection.socket.emit("drive", connection.pathname, startLatlng);
-
-        var map = createMap(startLatlng);
-        var panorama = createPanorama(startLatlng, 0);
-        map.setStreetView(panorama);
-        addPositionChangedListener(panorama, map);
-        addPovChangedListener(panorama);
-        initialClick(map);
+      // 位置情報変更受信
+      connection.socket.on('moved', function(position){
+        var latlng = new google.maps.LatLng(position.nb, position.ob);
+        console.log(latlng)
+        panorama.setPosition(latlng);
       });
+
+      //視点変更受信
+      connection.socket.on('view_changed', function(pov){
+        console.log(pov);
+        panorama.setPov(pov);
+      });
+
+      connection.socket.emit("join", connection.pathname);
+
+      initialClick(map);
     }
 
     function sendChat() {

@@ -21,8 +21,8 @@
     }
 
     #party-canvas {
-      height: 120px;
-      width: 120px;
+      height: 240px;
+      width: 240px;
       position: absolute;
       left: 16px;
       bottom: 64px;
@@ -32,17 +32,13 @@
       color: azure;
     }
 
-    #chat-input {
-      height: 24px;
-      width: 320px;
-      font-size: 100%;
+    #join-area {
       position: absolute;
+      height: 28px;
+      width: 158px;
       left: 16px;
       bottom: 32px;
-      border: 2px solid gray;
       z-index: 999;
-      background-color: rgba(0, 0, 0, 0.5);
-      color: azure;
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
@@ -71,12 +67,9 @@
         addressControlOptions: {
           position: google.maps.ControlPosition.TOP_RIGHT
         },
-        linksControl: true,
-        panControl: true,
+        linksControl: false,
+        panControl: false,
         zoomControl: false,
-        zoomControlOptions: {
-          style: google.maps.ZoomControlStyle.BIG
-        },
         enableCloseButton: false,
         clickToGo: false,
         disableDoubleClickZoom: false,
@@ -121,6 +114,8 @@
       connection.socket.emit("view", connection.pathname);
 
       initialClick(map);
+
+      $('#join').attr("href", "/join?room=" + connection.pathname);
     }
 
     google.maps.event.addDomListener(window, 'load', initialize);
@@ -137,7 +132,15 @@
       //TODO: 表示
       console.log(username + ":" + message);
     });
-
+    connection.socket.on('joined', function(driver, party) {
+      console.log(driver);
+      console.log(party);
+      $("#party-canvas").empty();
+      $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
+      party.forEach(function(element) {
+        $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
+      });
+    });
 
     getTimestamp = function() {
       return (new Date()).getTime();
@@ -148,8 +151,8 @@
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
   <div id="party-canvas"></div>
-  <form onsubmit="return false;">
-    <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
-  </form>
+  <div id="join-area">
+    <a id="join" href="#"><img src="/images/sign-in-with-twitter-gray.png" /></a>
+  </div>
 </body>
 </html>

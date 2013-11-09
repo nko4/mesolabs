@@ -19,11 +19,22 @@ exports.index = function(req, res) {
       res.send("そんなセッションはありません！");
       return;
     }
-    res.render('viewer', {
-      nb: data.position.nb,
-      ob: data.position.ob,
-      heading: data.pov.heading,
-      pitch: data.pov.pitch
-    });
+    if (req.session.passport.user) {
+      res.render('party', {
+        nb: data.position.nb,
+        ob: data.position.ob,
+        heading: data.pov.heading,
+        pitch: data.pov.pitch,
+        user: req.session.passport.user,
+        icon: req.session.passport.icon
+      });
+    } else {
+      res.render('viewer', {
+        nb: data.position.nb,
+        ob: data.position.ob,
+        heading: data.pov.heading,
+        pitch: data.pov.pitch
+      });
+    }
   }
 };
