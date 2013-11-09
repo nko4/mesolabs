@@ -6,7 +6,11 @@ var crypto = require('crypto'),
     sha1sum = crypto.createHash('sha1');
 
 exports.index = function(req, res){
-  res.render('index', { title: 'Drive Share!!' });
+  res.render('index', {
+      title: 'Drive Share!!',
+      user: req.session.passport.user,
+      icon: req.session.passport.icon
+  });
 };
 
 exports.new = function(req, res) {

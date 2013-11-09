@@ -2,6 +2,7 @@ require('nko')('U1rZVPYW41lBOHw9');
 var express = require('express');
 var routes = require('./routes');
 var drive = require('./routes/drive');
+var auth = require('./auth');
 var http = require('http');
 var path = require('path');
 
@@ -16,8 +17,11 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.cookieParser('your secret here'));
 app.use(express.session());
+app.use(auth.passport.initialize());
+app.use(auth.passport.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // development only
 if (!isProduction) {
@@ -27,6 +31,18 @@ if (!isProduction) {
 app.get('/', routes.index);
 app.post('/new', routes.new);
 app.get('/:hash', drive.index);
+app.get('/auth/twitter', auth.passport.authenticate('twitter'));
+app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: '/'}),
+    function (req, res) {
+      req.session.passport.user = req.user.screen_name;
+      req.session.passport.icon = req.user.profile_image_url;
+      res.redirect('/');
+    }
+);
+app.get('/logout/twitter', function (req, res) {
+  req.session.destroy();
+  res.redirect('/');
+})
 
 http.createServer(app).listen(port, function(err) {
   if (err) { console.error(err); process.exit(-1); }

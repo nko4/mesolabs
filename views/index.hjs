@@ -14,5 +14,8 @@
         <input type="submit" formaction="/new" formmethod="POST" value="START" />
       </form>
     </p>
+    <a href="./auth/twitter">Login</a>
+    <a href="./logout/twitter">Loout</a>
+    <img src="{{icon}}"> {{user}} </a>
   </body>
 </html>
