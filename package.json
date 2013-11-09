@@ -11,7 +11,8 @@
     "url": "git@github.com:nko4/mesolabs.git"
   },
   "dependencies": {
-    "nko": "*"
+    "nko": "*",
+    "express": "~3.4.4"
   },
   "engines": {
     "node": "0.10.x"
