@@ -50,6 +50,7 @@ var server = http.createServer(app).listen(port, function(err) {
 
 var io = sio.listen(server);
 io.sockets.on("connection", function(socket) {
+  var username = auth.passport.session.user;
 
   socket.on("moved", function(position, room) {
     if(!room) return;
@@ -71,8 +72,6 @@ io.sockets.on("connection", function(socket) {
     console.log(io.sockets.manager.roomClients[socket.id]);
     if(!room) return;
     var timestamp = getTimestamp();
-    //TODO: ユーザ情報を取得
-    var username = "NAME";
     console.log(message, timestamp);
     socket.broadcast.to(room).emit("chat_message", username, message, timestamp);
     socket.emit("chat_message", username, message, timestamp);

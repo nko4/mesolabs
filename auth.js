@@ -20,6 +20,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
+  passport.session.user = id;
   done(null, id);
 });
 
