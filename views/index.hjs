@@ -5,14 +5,48 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <iframe src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
-    <h1>{{ title }}</h1>
-    <p>Welcome to {{ title }}</p>
-    <p>
-      <form>
-        <input type="text" name="place" placeholder="Enter start place" />
-        <input type="submit" formaction="/new" formmethod="POST" value="START" />
-      </form>
-    </p>
+    <div id="wrapper">
+      <div id="header"></div>
+      <div id="container">
+        <div id="left-column">
+          <div id="left-column-container">
+            <h1 id="title">{{ title }}</h1>
+            <form>
+              <input type="text" name="place" placeholder="Enter start place" />
+              <input type="submit" formaction="/new" formmethod="POST" value="START" />
+            </form>
+            <p id="description">
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            </p>
+            <iframe src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
+          </div>
+        </div>
+        <div id="bottom-column">
+          <div id="menu">
+            <div id="menu-container">
+              <p id="now">> NOW</p>
+              <p id="past">> PAST</p>
+            </div>
+          </div>
+          <div id="list">
+            <ul>
+              <li>
+                <div class="thumb"></div>
+              </li>  
+              <li>
+                <div class="thumb"></div>
+              </li>  
+              <li>
+                <div class="thumb"></div>
+              </li>  
+              <li>
+                <div class="thumb"></div>
+              </li>  
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div id="footer"></div>
+    </div>
   </body>
 </html>

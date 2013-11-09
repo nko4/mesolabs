@@ -1,8 +1,158 @@
+/* reset */
+html, body, div, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+ addres, ul, ol, dl, dt, dd, table, th, td, form, fieldset{
+  margin:0;
+  padding:0;
+  line-height:1.0;
+  font-familu:"Hiragino Kaku Gothic ProN", meiryo, sans-serif;
+}
+
+table{
+  border-collapse:collapse;
+  border-spacing:0;
+}
+
+ul,ol{
+  list-style:none;
+}
+
+a{
+text-decoration: none;
+}
+
+img{
+ border:0;
+}
+
+img,input{
+  vertical-aligin: bottom;
+}
+
+
+/* style */
+html {
+  width: 100%;
+  height: 100%;
+}
+
 body {
-  padding: 50px;
+  width: 100%;
+  height: 100%;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
 }
+
+#wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  background-image: url("/images/sora.jpg");
+  -moz-background-size:100% 100%;
+  background-size:100% 100%;
+}
+#header {}
+#container {
+  width: 100%;
+  height: 100%;
+}
+#left-column {
+  width: 20%;
+  height: 100%;
+  color: RGBa(255,255,255,1);
+  background-color: RGBa(0,0,0,0.5);
+}
+
+#left-column #left-column-container {
+  width: 80%;
+  max-height: 60%;
+  /*
+  background-color: RGBa(255,255,255,0.5);
+  */
+  margin: 20px 10% 130px;
+  display: inline-block;
+}
+
+#left-column #left-column-container * {
+  margin: 10px 0;
+}
+
+#left-column #left-column-container #title {
+  font-size: xx-large;
+  font-weight: bold;
+}
+
+#left-column #left-column-container input[type="text"]{
+  width: 72%;
+}
+
+#left-column #left-column-container #description {
+  word-wrap: break-word;
+}
+
+#left-column input[type="submit"] {
+  background-color: #FFB400;
+  border : 0;
+}
+
+#bottom-column {
+  width : 100%;
+  height: 130px;
+  color: RGBa(255,255,255,1);
+  background-color: RGBa(255,255,255,0.5);
+  position:absolute;
+  bottom:0;
+}
+
+#bottom-column #menu {
+  width: 20%;
+  height: 100%;
+  float: left;
+}
+
+#bottom-column #menu #menu-container {
+  width: 80%;
+  max-height: 60%;
+  /*
+  background-color: RGBa(255,255,255,0.5);
+  */
+  margin: 20px 10% 130px;
+  display: inline-block;
+}
+
+#bottom-column #menu #menu-container {
+  font-size: x-large;
+}
+
+#bottom-column #menu #menu-container #now {}
+
+#bottom-column #menu #menu-container #past {}
+
+#bottom-column #list {
+  width : 80%;
+  height: 100%;
+  float: left;
+}
+
+#bottom-column #list ul {
+  width: 100%;
+  height: 100%;
+}
+
+#bottom-column #list ul li{
+  width: 19%;
+  height: 110px;
+  float: left;
+  margin: 10px 3%;
+}
+
+#bottom-column #list .thumb {
+  width: 92%;
+  height: 94px;
+  background-color: #ccffcc;
+  border: 8px solid RGBa(255,255,255,0.5);
+}
+
+#footer {}
