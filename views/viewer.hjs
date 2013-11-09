@@ -144,7 +144,7 @@
       console.log(username + ":" + message);
       createComment(message);
     });
-    connection.socket.on('joined', function(driver, party) {
+    connection.socket.on('party_changed', function(driver, party) {
       console.log(driver);
       console.log(party);
       $("#party-canvas").empty();

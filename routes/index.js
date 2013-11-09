@@ -11,11 +11,13 @@ exports.index = function(req, res){
 
 exports.new = function(req, res) {
   req.session.start = req.body.place;
+  req.session.room = null;
   res.redirect("/auth/twitter");
 };
 
 exports.join = function(req, res) {
   req.session.room = req.query.room;
+  req.session.start = null;
   console.log(req.session.room);
   res.redirect("/auth/twitter");
 };
