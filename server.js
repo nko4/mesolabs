@@ -46,32 +46,49 @@ var server = http.createServer(app).listen(port, function(err) {
 var io = sio.listen(server);
 io.sockets.on("connection", function(socket) {
 
-  socket.on("moved", function(position) {
-    // TODO: 部屋分け
+  socket.on("moved", function(position, room) {
+    if(!room) return;
     var timestamp = getTimestamp();
     console.log(position, timestamp);
-    socket.broadcast.emit("moved", position, timestamp);
+    socket.broadcast.to(room).emit("moved", position, timestamp);
     // TODO: データ保存
   });
   
-  socket.on("view_changed", function(pov) {
-    // TODO: 部屋分け
+  socket.on("view_changed", function(pov, room) {
+    if(!room) return;
     var timestamp = getTimestamp();
     console.log(pov, timestamp);
-    socket.broadcast.emit("view_changed", pov, timestamp);
+    socket.broadcast.to(room).emit("view_changed", pov, timestamp);
     // TODO: データ保存
   });
 
-  socket.on("chat_message", function(message) {
+  socket.on("chat_message", function(message, room) {
+    console.log(io.sockets.manager.roomClients[socket.id]);
+    if(!room) return;
     var timestamp = getTimestamp();
     //TODO: ユーザ情報を取得
     var username = "NAME";
     console.log(message, timestamp);
-    // TODO: 部屋分け
-    socket.broadcast.emit("chat_message", username, message, timestamp);
+    socket.broadcast.to(room).emit("chat_message", username, message, timestamp);
     socket.emit("chat_message", username, message, timestamp);
     //TODO: 何の情報を送受信するべきか要相談
-  })
+  });
+
+  socket.on("join", function(room) {
+    console.log("join", socket.id, room);
+    socket.join(room);
+    //TODO: 入室メッセージを流す？
+  });
+
+  socket.on("disconnect", function() {
+    for(var room in io.sockets.manager.roomClients[socket.id]){
+      //socket.leave(room);
+      if(room) {
+        //TODO: 特定ルームに入っている場合、退室メッセージを流す？
+        console.log(socket.id + " disconnected from " + room);
+      }
+    }
+  });
 });
 
 var getTimestamp = function() {

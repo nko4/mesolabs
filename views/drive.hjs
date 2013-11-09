@@ -51,6 +51,9 @@
 
     var connection = {};
 
+    // IEの一部バージョンだと、pathnameの先頭にスラッシュがつかないので調整する
+    connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname : '/' + location.pathname;
+
     function createMap(latlng) {
         var mapOptions = {
           center: latlng,
@@ -135,7 +138,7 @@
 //    }
         //TODO: 他のメンバに新しい位置を通知する
         if(connection.socket) {
-          connection.socket.emit("moved", panorama.getPosition(), getTimestamp());
+          connection.socket.emit("moved", panorama.getPosition(), getTimestamp(), connection.pathname);
         }
       });
     }
@@ -144,7 +147,7 @@
       // 視点を変更したときの処理
       google.maps.event.addListener(panorama, "pov_changed", function () {
         //TODO: 他のメンバに新しい視点を通知する
-        connection.socket.emit("view_changed", panorama.getPov(), getTimestamp());
+        connection.socket.emit("view_changed", panorama.getPov(), getTimestamp(), connection.pathname);
       });
     }
 
@@ -194,6 +197,18 @@
     google.maps.event.addDomListener(window, 'load', initialize);
 
     connection.socket = io.connect();
+    connection.socket.on('connect', function() {
+      console.log("connected");
+      connection.socket.emit("join", connection.pathname);
+    });
+
+    connection.disconnect = function() {
+      connection.socket.emit("part", connection.pathname);
+    }
+
+    window.onbeforeunload = function(event){
+      connection.disconnect();
+    }
 
     // 位置情報変更受信
     connection.socket.on('moved', function(position){
@@ -202,7 +217,7 @@
 
     // チャット送信
     connection.sendMessage = function(message) {
-      connection.socket.emit('chat_message', message);
+      connection.socket.emit('chat_message', message, connection.pathname);
     };
     // チャット受信
     connection.socket.on('chat_message', function(username, message) {
