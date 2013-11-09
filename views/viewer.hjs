@@ -90,6 +90,14 @@
       return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
     }
 
+    function addPositionChangedListener(panorama, map) {
+      // 移動したときの処理
+      google.maps.event.addListener(panorama, "position_changed", function () {
+        // 右下マップの位置を更新
+        map.setCenter(panorama.getPosition());
+      });
+    }
+
     function initialClick(map) {
       // ページ読み込み後、Clickせずともキーボード操作可能にする
       google.maps.event.addListenerOnce(map, 'idle', function () {
@@ -108,6 +116,7 @@
       var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
       var panorama = createPanorama(latlng, pov);
       map.setStreetView(panorama);
+      addPositionChangedListener(panorama, map);
 
       // 位置情報変更受信
       connection.socket.on('moved', function(position){
