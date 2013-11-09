@@ -15,6 +15,6 @@ exports.index = function(req, res) {
     });
   } else {
     //TODO: 途中参加した人の処理
-    res.send("途中参加した人の処理はまだです")
+    res.send("途中参加した人の処理はまだです");
   }
 };

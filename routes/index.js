@@ -12,7 +12,7 @@ exports.index = function(req, res){
 exports.new = function(req, res) {
   req.session.start = req.body.place;
   res.redirect("/auth/twitter");
-}
+};
 
 exports.callback = function(req, res) {
   console.log("callback method.");
@@ -24,4 +24,4 @@ exports.callback = function(req, res) {
   sha1sum.update(name + new Date().getTime());
   res.redirect("/" + sha1sum.digest("hex"));
 
-}
+};
