@@ -14,7 +14,7 @@ exports.index = function(req, res) {
     });
   } else {
     //TODO: 途中参加した人の処理
-    var data = module.parent.exports.rooms[req.path];
+    var data = module.parent.exports.rooms[req.path.slice(1)];
     if (!data) {
       res.send("そんなセッションはありません！");
       return;

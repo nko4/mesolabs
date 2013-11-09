@@ -62,8 +62,8 @@
 
     var connection = {};
 
-    // IEの一部バージョンだと、pathnameの先頭にスラッシュがつかないので調整する
-    connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname : '/' + location.pathname;
+    // pathnameの先頭のスラッシュを除去する
+    connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname.slice(1): location.pathname;
 
     function createMap(latlng) {
         var mapOptions = {

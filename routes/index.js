@@ -30,7 +30,7 @@ exports.callback = function(req, res) {
 
   if (req.session.room) {
     // 既存ルームに加わる場合
-    res.redirect(req.session.room);
+    res.redirect("/" + req.session.room);
   } else {
     // 新規ルームの場合
     var sha1sum = crypto.createHash('sha1');
