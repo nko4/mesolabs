@@ -1,6 +1,5 @@
 exports.index = function(req, res) {
   var start = req.session.start;
-  console.log("start: " + start);
   if (start) {
     if (start === "東京" || start.toLowerCase() === "tokyo") {
       start = "都庁前";
@@ -8,13 +7,23 @@ exports.index = function(req, res) {
       start = "梅田";
     }
 
-    res.render('drive', {
+    res.render('driver', {
       start: start,
       user: req.session.passport.user,
       icon: req.session.passport.icon
     });
   } else {
     //TODO: 途中参加した人の処理
-    res.send("途中参加した人の処理はまだです");
+    var data = module.parent.exports.rooms[req.path];
+    if (!data) {
+      res.send("そんなセッションはありません！");
+      return;
+    }
+    res.render('viewer', {
+      nb: data.position.nb,
+      ob: data.position.ob,
+      heading: data.pov.heading,
+      pitch: data.pov.pitch
+    });
   }
 };

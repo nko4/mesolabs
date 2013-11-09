@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Drive Share</title>
+  <style>
+    html, body, #streetview-canvas {
+      height: 100%;
+      margin: 0px;
+      padding: 0px
+    }
+
+    #map-canvas {
+      height: 240px;
+      width: 320px;
+      position: absolute;
+      right: 16px;
+      bottom: 24px;
+      border: 2px solid gray;
+      z-index: 999;
+    }
+
+    #party-canvas {
+      height: 120px;
+      width: 120px;
+      position: absolute;
+      left: 16px;
+      bottom: 64px;
+      border: 2px solid gray;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      color: azure;
+    }
+
+    #chat-input {
+      height: 24px;
+      width: 320px;
+      font-size: 100%;
+      position: absolute;
+      left: 16px;
+      bottom: 32px;
+      border: 2px solid gray;
+      z-index: 999;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: azure;
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script>
+
+    var connection = {};
+
+    // IEの一部バージョンだと、pathnameの先頭にスラッシュがつかないので調整する
+    connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname : '/' + location.pathname;
+
+    function createMap(latlng) {
+        var mapOptions = {
+          center: latlng,
+          zoom: 15,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+      console.log(3.5, mapOptions);
+        return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    }
+
+    function createPanorama(latlng, pov) {
+      var panoOptions = {
+        position: latlng,
+        addressControlOptions: {
+          position: google.maps.ControlPosition.TOP_RIGHT
+        },
+        linksControl: true,
+        panControl: true,
+        zoomControl: false,
+        zoomControlOptions: {
+          style: google.maps.ZoomControlStyle.BIG
+        },
+        enableCloseButton: false,
+        clickToGo: false,
+        disableDoubleClickZoom: false,
+        scrollwheel: false,
+        pov: pov,
+        visible: true
+      };
+      return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
+    }
+
+    function initialClick(map) {
+      // ページ読み込み後、Clickせずともキーボード操作可能にする
+      google.maps.event.addListenerOnce(map, 'idle', function () {
+        var evt = document.createEvent("MouseEvents");
+        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, true, true, true, 0, null);
+        evt.enableKeyAccess = true;
+        document.querySelector('svg').dispatchEvent(evt);
+      });
+    }
+
+    function initialize() {
+      var latlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
+      console.log(latlng);
+      var map = createMap(latlng);
+      var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
+      var panorama = createPanorama(latlng, pov);
+      map.setStreetView(panorama);
+
+      // 位置情報変更受信
+      connection.socket.on('moved', function(position){
+        var latlng = new google.maps.LatLng(position.nb, position.ob);
+        console.log(latlng)
+        panorama.setPosition(latlng);
+      });
+
+      //視点変更受信
+      connection.socket.on('view_changed', function(pov){
+        console.log(pov);
+        panorama.setPov(pov);
+      });
+
+      connection.socket.emit("view", connection.pathname);
+
+      initialClick(map);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+    connection.socket = io.connect();
+    connection.disconnect = function() {
+      connection.socket.emit("part", connection.pathname);
+    }
+    window.onbeforeunload = function(event){
+      connection.disconnect();
+    }
+    // チャット受信
+    connection.socket.on('chat_message', function(username, message) {
+      //TODO: 表示
+      console.log(username + ":" + message);
+    });
+
+
+    getTimestamp = function() {
+      return (new Date()).getTime();
+    };
+  </script>
+</head>
+<body>
+  <div id="map-canvas"></div>
+  <div id="streetview-canvas"></div>
+  <div id="party-canvas"></div>
+  <form onsubmit="return false;">
+    <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
+  </form>
+</body>
+</html>

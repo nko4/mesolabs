@@ -20,6 +20,7 @@ app.use(express.cookieParser('mesomeso'));
 app.use(express.session());
 app.use(auth.passport.initialize());
 app.use(auth.passport.session());
+app.use(express.favicon());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -50,21 +51,25 @@ var server = http.createServer(app).listen(port, function(err) {
 });
 
 var io = sio.listen(server);
+var rooms = {};
+module.exports.rooms = rooms;
 io.sockets.on("connection", function(socket) {
-  var username = auth.passport.session.user;
 
-  socket.on("moved", function(position, room) {
-    if(!room) return;
+  socket.on("moved", function(room, position) {
+    if (!room) return;
+    if (!rooms[room]) return;
     var timestamp = getTimestamp();
     console.log(position, timestamp);
+    rooms[room].position = position;
     socket.broadcast.to(room).emit("moved", position, timestamp);
     // TODO: データ保存
   });
   
-  socket.on("view_changed", function(pov, room) {
+  socket.on("view_changed", function(room, pov) {
     if(!room) return;
     var timestamp = getTimestamp();
-    console.log(pov, timestamp);
+    console.log(room, pov, timestamp);
+    rooms[room].pov = pov;
     socket.broadcast.to(room).emit("view_changed", pov, timestamp);
     // TODO: データ保存
   });
@@ -79,9 +84,34 @@ io.sockets.on("connection", function(socket) {
     //TODO: 何の情報を送受信するべきか要相談
   });
 
+  socket.on("drive", function(room, startLocation) {
+    console.log("drive:" + room);
+    if (!room) return;
+    var timestamp = getTimestamp();
+    socket.join(room);
+    var data = {
+      position: startLocation,
+      driver: auth.passport.session.user,
+      party: [],
+      viewer: 0,
+      pov: {heading: 0, pitch: 0}
+    }
+    rooms[room] = data;
+    console.log(rooms[room]);
+  });
+
+  socket.on("view", function(room) {
+    if (!room) return;
+    if (!rooms[room]) return;
+    console.log("view: ", room);
+    rooms[room].viewer++;
+    socket.join(room);
+  });
+
   socket.on("join", function(room) {
     console.log("join", socket.id, room);
     socket.join(room);
+    rooms[room].party.push(auth.passport.session.user);
     //TODO: 入室メッセージを流す？
   });
 

@@ -61,6 +61,7 @@
           zoom: 15,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
+      console.log(3.5, mapOptions);
         return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     }
 
@@ -139,7 +140,7 @@
 //    }
         //TODO: 他のメンバに新しい位置を通知する
         if(connection.socket) {
-          connection.socket.emit("moved", panorama.getPosition(), getTimestamp(), connection.pathname);
+          connection.socket.emit("moved", connection.pathname, panorama.getPosition(), getTimestamp());
         }
       });
     }
@@ -148,7 +149,7 @@
       // 視点を変更したときの処理
       google.maps.event.addListener(panorama, "pov_changed", function () {
         //TODO: 他のメンバに新しい視点を通知する
-        connection.socket.emit("view_changed", panorama.getPov(), getTimestamp(), connection.pathname);
+        connection.socket.emit("view_changed", connection.pathname, panorama.getPov(), getTimestamp());
       });
     }
 
@@ -179,12 +180,14 @@
           return console.log("Geocode failed for the following reason: " + status);
         }
         var startLatlng = results[0].geometry.location;
+
+        connection.socket.emit("drive", connection.pathname, startLatlng);
+
         var map = createMap(startLatlng);
-        var panorama = createPanorama(startLatlng, 270);
+        var panorama = createPanorama(startLatlng, 0);
         map.setStreetView(panorama);
         addPositionChangedListener(panorama, map);
         addPovChangedListener(panorama);
-
         initialClick(map);
       });
     }
@@ -196,26 +199,13 @@
     }
 
     google.maps.event.addDomListener(window, 'load', initialize);
-
     connection.socket = io.connect();
-    connection.socket.on('connect', function() {
-      console.log("connected");
-      connection.socket.emit("join", connection.pathname);
-    });
-
     connection.disconnect = function() {
       connection.socket.emit("part", connection.pathname);
     }
-
     window.onbeforeunload = function(event){
       connection.disconnect();
     }
-
-    // 位置情報変更受信
-    connection.socket.on('moved', function(position){
-        console.log(data)
-    });
-
     // チャット送信
     connection.sendMessage = function(message) {
       connection.socket.emit('chat_message', message, connection.pathname);
@@ -225,6 +215,8 @@
       //TODO: 表示
       console.log(username + ":" + message);
     });
+
+
 
     getTimestamp = function() {
       return (new Date()).getTime();
