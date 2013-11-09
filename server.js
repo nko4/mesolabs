@@ -1,16 +1,33 @@
 require('nko')('U1rZVPYW41lBOHw9');
 var express = require('express');
-var app = express();
+var routes = require('./routes');
+var user = require('./routes/user');
+var http = require('http');
+var path = require('path');
+
 var isProduction = (process.env.NODE_ENV === 'production');
 var port = (isProduction ? 80 : 8000);
+var app = express();
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hjs');
+app.use(express.logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(express.methodOverride());
+app.use(express.cookieParser('your secret here'));
+app.use(express.session());
+app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', function(req, res) {
-  var voteko = '<iframe src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>';
+// development only
+if (!isProduction) {
+  app.use(express.errorHandler());
+}
 
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end('<html><body>' + voteko + '</body></html>\n');
+app.get('/', routes.index);
+app.get('/users', user.list);
 
-}).listen(port, function(err) {
+http.createServer(app).listen(port, function(err) {
   if (err) { console.error(err); process.exit(-1); }
 
   // if run as root, downgrade to the owner of this file
