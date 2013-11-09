@@ -44,10 +44,20 @@
       background-color: rgba(0, 0, 0, 0.5);
       color: azure;
     }
+
+    #comment-canvas {
+      pointer-events: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-color: transparent;
+      z-index: 998;
+    }
   </style>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="/javascripts/comment.js"></script>
   <script>
 
     var connection = {};
@@ -102,6 +112,7 @@
     }
 
     function initialize() {
+      commentCanvasInit();
       var latlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
       console.log(latlng);
       var map = createMap(latlng);
@@ -129,6 +140,7 @@
 
     function sendChat() {
       var message = $('#chat-input').val();
+      if (message == "") return false;
       connection.sendMessage(message);
       $('#chat-input').val("");
     }
@@ -149,6 +161,7 @@
     connection.socket.on('chat_message', function(username, message) {
       //TODO: 表示
       console.log(username + ":" + message);
+      createComment(message);
     });
     connection.socket.on('joined', function(driver, party) {
       console.log(driver);
@@ -172,6 +185,7 @@
   <div id="party-canvas">
     <img src="{{icon}}" />{{user}}<br />
   </div>
+  <canvas id="comment-canvas"></canvas>
   <form onsubmit="sendChat(); return false;">
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>

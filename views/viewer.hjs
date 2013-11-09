@@ -40,10 +40,20 @@
       bottom: 32px;
       z-index: 999;
     }
+
+    #comment-canvas {
+      pointer-events: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-color: transparent;
+      z-index: 998;
+    }
   </style>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="/javascripts/comment.js"></script>
   <script>
 
     var connection = {};
@@ -91,6 +101,7 @@
     }
 
     function initialize() {
+      commentCanvasInit();
       var latlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
       console.log(latlng);
       var map = createMap(latlng);
@@ -131,6 +142,7 @@
     connection.socket.on('chat_message', function(username, message) {
       //TODO: 表示
       console.log(username + ":" + message);
+      createComment(message);
     });
     connection.socket.on('joined', function(driver, party) {
       console.log(driver);
@@ -151,6 +163,7 @@
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
   <div id="party-canvas"></div>
+  <canvas id="comment-canvas"></canvas>
   <div id="join-area">
     <a id="join" href="#"><img src="/images/sign-in-with-twitter-gray.png" /></a>
   </div>

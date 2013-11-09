@@ -88,20 +88,23 @@ io.sockets.on("connection", function(socket) {
   socket.on("drive", function(room, startLocation) {
     console.log("drive:" + room);
     if (!room) return;
-    var timestamp = getTimestamp();
+    if (!rooms[room]) {
+      var timestamp = getTimestamp();
+      var user = {
+        name: auth.passport.session.user,
+        icon: auth.passport.session.icon
+      };
+      var data = {
+        position: startLocation,
+        driver: user,
+        party: [],
+        viewer: 0,
+        pov: {heading: 0, pitch: 0}
+      };
+      rooms[room] = data;
+    }
     socket.join(room);
-    var user = {
-      name: auth.passport.session.user,
-      icon: auth.passport.session.icon
-    };
-    var data = {
-      position: startLocation,
-      driver: user,
-      party: [],
-      viewer: 0,
-      pov: {heading: 0, pitch: 0}
-    };
-    rooms[room] = data;
+    socket.emit("joined", rooms[room].driver, rooms[room].party);
     console.log(rooms[room]);
   });
 
@@ -111,18 +114,23 @@ io.sockets.on("connection", function(socket) {
     console.log("view: ", room);
     rooms[room].viewer++;
     socket.join(room);
-    socket.broadcast.to(room).emit("joined", rooms[room].driver, rooms[room].party);
     socket.emit("joined", rooms[room].driver, rooms[room].party);
   });
 
   socket.on("join", function(room) {
+    if (!room) return;
+    if (!rooms[room]) return;
     console.log("join", socket.id, room);
-    socket.join(room);
+    var array = rooms[room].party.filter(function(v) {
+      return (v.name !== auth.passport.session.user);
+    });
+    rooms[room].party = array;
     var user = {
       name: auth.passport.session.user,
       icon: auth.passport.session.icon
     };
     rooms[room].party.push(user);
+    socket.join(room);
     socket.broadcast.to(room).emit("joined", rooms[room].driver, rooms[room].party);
     socket.emit("joined", rooms[room].driver, rooms[room].party);
   });
@@ -134,7 +142,7 @@ io.sockets.on("connection", function(socket) {
         socket.leave(room);
         if (auth.passport.session.user && rooms[room]) {
           var array = rooms[room].party.filter(function(v) {
-            return (v.user !== auth.passport.session.user);
+            return (v.name !== auth.passport.session.user);
           });
           rooms[room].party = array;
           socket.broadcast.to(room).emit("joined", rooms.driver, rooms[room].party);
