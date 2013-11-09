@@ -43,20 +43,37 @@ var server = http.createServer(app).listen(port, function(err) {
   console.log('Server running at http://0.0.0.0:' + port + '/');
 });
 
-io = sio.listen(server);
+var io = sio.listen(server);
 io.sockets.on("connection", function(socket) {
 
-  socket.on("moved", function(position, timestamp) {
+  socket.on("moved", function(position) {
     // TODO: 部屋分け
+    var timestamp = getTimestamp();
     console.log(position, timestamp);
     socket.broadcast.emit("moved", position, timestamp);
     // TODO: データ保存
   });
   
-  socket.on("view_changed", function(pov, timestamp) {
+  socket.on("view_changed", function(pov) {
     // TODO: 部屋分け
-    console.log("pov", pov);
+    var timestamp = getTimestamp();
+    console.log(pov, timestamp);
     socket.broadcast.emit("view_changed", pov, timestamp);
     // TODO: データ保存
   });
+
+  socket.on("chat_message", function(message) {
+    var timestamp = getTimestamp();
+    //TODO: ユーザ情報を取得
+    username = "NAME";
+    console.log(message, timestamp);
+    // TODO: 部屋分け
+    socket.broadcast.emit("chat_message", username, message, timestamp);
+    socket.emit("chat_message", username, message, timestamp);
+    //TODO: 何の情報を送受信するべきか要相談
+  })
 });
+
+var getTimestamp = function() {
+  return (new Date()).getTime();
+};

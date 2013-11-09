@@ -49,15 +49,15 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script>
 
-  var connection = {};
+    var connection = {};
 
-  function createMap(latlng) {
-      var mapOptions = {
-        center: latlng,
-        zoom: 15,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-      return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    function createMap(latlng) {
+        var mapOptions = {
+          center: latlng,
+          zoom: 15,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     }
 
     function createPanorama(latlng, heading) {
@@ -185,11 +185,29 @@
       });
     }
 
+    function sendChat() {
+      var message = $('#chat-input').val();
+      connection.sendMessage(message);
+      $('#chat-input').val("");
+    }
+
     google.maps.event.addDomListener(window, 'load', initialize);
 
     connection.socket = io.connect();
+
+    // 位置情報変更受信
     connection.socket.on('moved', function(position){
         console.log(data)
+    });
+
+    // チャット送信
+    connection.sendMessage = function(message) {
+      connection.socket.emit('chat_message', message);
+    };
+    // チャット受信
+    connection.socket.on('chat_message', function(username, message) {
+      //TODO: 表示
+      console.log(username + ":" + message);
     });
 
     getTimestamp = function() {
@@ -198,9 +216,11 @@
   </script>
 </head>
 <body>
-<div id="map-canvas"></div>
-<div id="streetview-canvas"></div>
-<div id="party-canvas"></div>
-<input id="chat-input" type="text" name="chat" placeholder="Input chat message..."/>
+  <div id="map-canvas"></div>
+  <div id="streetview-canvas"></div>
+  <div id="party-canvas"></div>
+  <form onsubmit="sendChat(); return false;">
+    <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
+  </form>
 </body>
 </html>
