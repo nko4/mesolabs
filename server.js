@@ -5,6 +5,7 @@ var drive = require('./routes/drive');
 var http = require('http');
 var path = require('path');
 var sio = require('socket.io');
+var auth = require('./auth');
 
 var isProduction = (process.env.NODE_ENV === 'production');
 var port = (isProduction ? 80 : 8000);
@@ -17,6 +18,8 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.cookieParser('mesomeso'));
 app.use(express.session());
+app.use(auth.passport.initialize());
+app.use(auth.passport.session());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -27,6 +30,8 @@ if (!isProduction) {
 
 app.get('/', routes.index);
 app.post('/new', routes.new);
+app.get('/auth/twitter', auth.passport.authenticate('twitter'));
+app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: "/"}), routes.callback);
 app.get('/:hash', drive.index);
 
 var server = http.createServer(app).listen(port, function(err) {

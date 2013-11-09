@@ -29,6 +29,7 @@
       border: 2px solid gray;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 999;
+      color: azure;
     }
 
     #chat-input {
@@ -218,7 +219,9 @@
 <body>
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
-  <div id="party-canvas"></div>
+  <div id="party-canvas">
+    <img src="{{icon}}" />{{user}}<br />
+  </div>
   <form onsubmit="sendChat(); return false;">
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>
