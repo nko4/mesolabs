@@ -14,7 +14,9 @@
     "nko": "*",
     "express": "~3.4.4",
     "hjs": "*",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "passport": "~0.1.17",
+    "passport-twitter": "~1.0.2"
   },
   "engines": {
     "node": "0.10.x"
