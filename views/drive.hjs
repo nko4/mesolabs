@@ -168,6 +168,15 @@
         connection.socket.on('moved', function(position){
             console.log(data)
         });
+
+        //TODO: 入力欄作成
+        connection.sendMessage = function(message){
+          connection.socket.emit('chat_message', message);
+        };
+
+        connection.socket.on('chat_message', function(message) {
+            //TODO: 表示
+        });
         
         getTimestamp = function() {
           return (new Date()).getTime();
