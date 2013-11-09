@@ -44,12 +44,14 @@
       color: azure;
     }
   </style>
-  <script
-      src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script>
 
-    function createMap(latlng) {
+  var connection = {};
+
+  function createMap(latlng) {
       var mapOptions = {
         center: latlng,
         zoom: 15,
@@ -79,7 +81,6 @@
       };
       return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
     }
-
 
     function addPositionChangedListener(panorama, map) {
       var timer = null;
@@ -133,6 +134,9 @@
 //      }, 1000);
 //    }
         //TODO: 他のメンバに新しい位置を通知する
+        if(connection.socket) {
+          connection.socket.emit("moved", panorama.getPosition(), getTimestamp());
+        }
       });
     }
 
@@ -140,6 +144,7 @@
       // 視点を変更したときの処理
       google.maps.event.addListener(panorama, "pov_changed", function () {
         //TODO: 他のメンバに新しい視点を通知する
+        connection.socket.emit("view_changed", panorama.getPov(), getTimestamp());
       });
     }
 
@@ -182,6 +187,14 @@
 
     google.maps.event.addDomListener(window, 'load', initialize);
 
+    connection.socket = io.connect();
+    connection.socket.on('moved', function(position){
+        console.log(data)
+    });
+
+    getTimestamp = function() {
+      return (new Date()).getTime();
+    };
   </script>
 </head>
 <body>
