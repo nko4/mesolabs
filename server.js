@@ -32,11 +32,7 @@ app.get('/', routes.index);
 app.post('/new', routes.new);
 app.get('/auth/twitter', auth.passport.authenticate('twitter'));
 app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: "/"}), routes.callback);
-app.get('/auth/logout', function(req, res){
-  req.logout();
-  req.session.start = null;
-  res.redirect('/');
-});
+app.get('/auth/logout', routes.logout);
 app.get('/:hash', drive.index);
 
 var server = http.createServer(app).listen(port, function(err) {

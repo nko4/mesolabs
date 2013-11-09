@@ -25,3 +25,9 @@ exports.callback = function(req, res) {
   res.redirect("/" + sha1sum.digest("hex"));
 
 };
+
+exports.logout = function(req, res) {
+  req.session.destroy();
+  req.logout();
+  res.redirect('/');
+}
