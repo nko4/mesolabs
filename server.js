@@ -65,7 +65,7 @@ io.sockets.on("connection", function(socket) {
   socket.on("chat_message", function(message) {
     var timestamp = getTimestamp();
     //TODO: ユーザ情報を取得
-    username = "NAME";
+    var username = "NAME";
     console.log(message, timestamp);
     // TODO: 部屋分け
     socket.broadcast.emit("chat_message", username, message, timestamp);
