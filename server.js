@@ -1,7 +1,7 @@
 require('nko')('U1rZVPYW41lBOHw9');
 var express = require('express');
 var routes = require('./routes');
-var user = require('./routes/user');
+var drive = require('./routes/drive');
 var http = require('http');
 var path = require('path');
 
@@ -25,7 +25,8 @@ if (!isProduction) {
 }
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.post('/new', routes.new);
+app.get('/:hash', drive.index);
 
 http.createServer(app).listen(port, function(err) {
   if (err) { console.error(err); process.exit(-1); }

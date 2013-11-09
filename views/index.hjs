@@ -9,5 +9,10 @@
     <h1>{{ title }}</h1>
     <p>Welcome to {{ title }}</p>
     <p>
+      <form>
+        <input type="text" name="place" placeholder="Enter start place" />
+        <input type="submit" formaction="/new" formmethod="POST" value="START" />
+      </form>
+    </p>
   </body>
 </html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Drive Share</title>
+    <style>
+        html, body, #streetview-canvas {
+            height: 100%;
+            margin: 0px;
+            padding: 0px
+        }
+        #map-canvas {
+            height: 240px;
+            width: 320px;
+            position: absolute;
+            right: 64px;
+            bottom: 64px;
+            border: 2px solid gray;
+            z-index: 999;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script>
+
+        function createMap(latlng) {
+            var mapOptions = {
+                center: latlng,
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        function createPanorama(latlng, heading) {
+            var panoOptions = {
+                position: latlng,
+                addressControlOptions: {
+                    position: google.maps.ControlPosition.TOP_RIGHT
+                },
+                linksControl: true,
+                panControl: true,
+                zoomControl: false,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.BIG
+                },
+                enableCloseButton: false,
+                clickToGo: false,
+                disableDoubleClickZoom: false,
+                scrollwheel: false,
+                pov: {heading: heading, pitch: 0},
+            };
+            return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
+        }
+
+
+        function addPositionChangedListener(panorama, map) {
+            var timer = null;
+            var prevPano = null;
+            // 移動したときの処理
+            google.maps.event.addListener(panorama, "position_changed", function() {
+                timer && clearTimeout(timer);
+                // 右下マップの位置を更新
+                map.setCenter(panorama.getPosition());
+                // 分かれ道かどうか
+                var links = panorama.getLinks();
+                // if (links && links.length == 2) {
+                //   console.log("links.length == 2");
+                //   // 直進できる道の場合
+                //   console.log("PrevPano: " + prevPano);
+                //   console.log("NowPano: " + panorama.getPano());
+                //   console.log("Links[0].pano: " + links[0].pano);
+                //   console.log("Links[1].pano: " + links[1].pano);
+
+                //   var nextPano = links[links[0].pano == prevPano ? 1 : 0].pano;
+                //   console.log("NextPano: " + nextPano);
+                //   timer = setTimeout(function() {
+                //     console.log("fired.");
+                //     prevPano = panorama.getPano();
+                //     panorama.setPano(nextPano);
+                //   }, 10000);
+                // }
+//     if (links && links.length < 3) {
+//       var next = null;
+//       var heading = panorama.getPov().heading % 360;
+//       console.log("Now heading: " + heading);
+//       var delta = 180;
+//       links.forEach(function(link, i) {
+//         var tmp = Math.abs(heading - link.heading);
+//         console.log("tmp正規化前: " + tmp);
+//         if (tmp > 180) {
+//           tmp = 360 - tmp;
+//         }
+//         console.log("tmp正規化後: " + tmp);
+//         if (tmp <= delta) {
+//           delta = tmp;
+//           next = link;
+//         }
+//         console.log(delta);
+//       });
+//       console.log(delta);
+//       console.log(next);
+//       timer = setTimeout(function() {
+// //        forward();
+//         panorama.setPano(link[0].pano);
+//       }, 1000);
+//     }
+                //TODO: 他のメンバに新しい位置を通知する
+            });
+        }
+
+        function addPovChangedListener(panorama) {
+            // 視点を変更したときの処理
+            google.maps.event.addListener(panorama, "pov_changed", function() {
+                //TODO: 他のメンバに新しい視点を通知する
+            });
+        }
+
+        function forward() {
+            console.log("forward");
+            var e = document.createEvent("KeyboardEvent");
+            e.initKeyboardEvent("keypress", true, true, window, false, false, false, false, 38, 0);
+            window.dispatchEvent(e);
+        }
+
+        function initialClick(map) {
+            // ページ読み込み後、Clickせずともキーボード操作可能にする
+            google.maps.event.addListenerOnce(map, 'idle', function(){
+                var evt = document.createEvent("MouseEvents");
+                evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, true, true, true, 0, null);
+                evt.enableKeyAccess = true;
+                document.querySelector('svg').dispatchEvent(evt);
+            });
+        }
+
+        function initialize() {
+            var geocoder = new google.maps.Geocoder;
+            var request = {address: "レインボーブリッジ"};
+
+            geocoder.geocode(request, function(results, status) {
+                if (status != google.maps.GeocoderStatus.OK) {
+                    return console.log("Geocode failed for the following reason: " + status);
+                }
+                var RAINBOW_BRIDGE = results[0].geometry.location;
+                var map = createMap(RAINBOW_BRIDGE);
+                var panorama = createPanorama(RAINBOW_BRIDGE, 270);
+                map.setStreetView(panorama);
+                addPositionChangedListener(panorama, map);
+                addPovChangedListener(panorama);
+
+                initialClick(map);
+            });
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+</head>
+<body>
+<div id="map-canvas"></div>
+<div id="streetview-canvas"></div>
+</body>
+</html>
