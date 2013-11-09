@@ -49,6 +49,7 @@
                 disableDoubleClickZoom: false,
                 scrollwheel: false,
                 pov: {heading: heading, pitch: 0},
+                visible: true
             };
             return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
         }
@@ -135,15 +136,16 @@
 
         function initialize() {
             var geocoder = new google.maps.Geocoder;
-            var request = {address: "レインボーブリッジ"};
+            var request = {address: "{{start}}"};
+            console.log(request);
 
             geocoder.geocode(request, function(results, status) {
                 if (status != google.maps.GeocoderStatus.OK) {
                     return console.log("Geocode failed for the following reason: " + status);
                 }
-                var RAINBOW_BRIDGE = results[0].geometry.location;
-                var map = createMap(RAINBOW_BRIDGE);
-                var panorama = createPanorama(RAINBOW_BRIDGE, 270);
+                var startLatlng = results[0].geometry.location;
+                var map = createMap(startLatlng);
+                var panorama = createPanorama(startLatlng, 270);
                 map.setStreetView(panorama);
                 addPositionChangedListener(panorama, map);
                 addPovChangedListener(panorama);
