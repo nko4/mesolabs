@@ -29,7 +29,7 @@
       function initialize() {
         var connection ={};
         connection.socket = io.connect();
-        connection.socket.on("push_rooms", function(rooms) {
+        connection.socket.on("push_liveRooms", function(rooms) {
           if (rooms) {
             var max = $(".thumb").length;
             var i = 0;
@@ -54,6 +54,9 @@
               if (i >= max) break;
             }
           }
+        });
+        connection.socket.on("push_timeshiftRooms", function(rooms) {
+
         });
         connection.socket.emit("get_rooms");
       }

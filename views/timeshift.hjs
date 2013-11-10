@@ -62,16 +62,12 @@
             for(; position < timestamp_array.length; position++){
               if(timestamp_array[position] <= start_time + elapsed_time) {
                 connection.socket.emit('request_history', connection.pathname, position);
-                console.log("requested", position);
               } else{
-                console.log("breaked", position);
                 break;
               }
             }
-            console.log("finished", position);
             if(timestamp_array.length == position) {
               connection.socket.emit('request_history', connection.pathname, position);
-              console.log("last one requested", position);
               clearInterval(TimeShiftTimer);
             }
           }, 500);

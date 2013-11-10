@@ -269,16 +269,26 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("get_rooms", function() {
-    var data = {};
+    var liveData = {};
     for (var id in liveRooms) {
       var room = liveRooms[id];
       var element = {
         position: room.position,
         pov: room.pov
       }
-      data[id] = element;
+      liveData[id] = element;
     }
-    socket.emit("push_rooms", data);
+    var timeshiftData = {};
+    for (var id in liveRooms) {
+      var room = liveRooms[id];
+      var element = {
+        position: room.position,
+        pov: room.pov
+      }
+      timeshiftData[id] = element;
+    }
+    socket.emit("push_liveRooms", liveData);
+    socket.emit("push_timeshiftRooms", timeshiftData);
   });
 
   socket.on("request_history_list", function(room) {
