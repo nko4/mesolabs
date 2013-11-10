@@ -4,7 +4,9 @@ exports.index = function(req, res) {
     if (start === "東京" || start.toLowerCase() === "tokyo") {
       start = "都庁前";
     } else if (start == "大阪" || start.toLowerCase() === "osaka") {
-      start = "梅田";
+      start = "大阪市役所";
+    } else if (start == "京都" || start.toLowerCase() === "kyoto") {
+      start = "京都市役所前";
     }
 
     res.render('driver', {

@@ -39,15 +39,18 @@
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
               var panorama = createThumbnailPanorama(startLatlng, pov, false, div);
-              $(div).click(function (){
-                console.log("clicked", id);
-                $("#wrapper").fadeTo(800, 0.05, function() {
-                  $("#wrapper").attr("src", "/" + id).load(function() {
-                    $("#wrapper").fadeTo(800, 1);
+              $(div).click(function(n) {
+                return function() {
+                  console.log("clicked", n);
+                  $("#wrapper").fadeTo(800, 0.05, function() {
+                    $("#wrapper").attr("src", "/" + n).load(function() {
+                      $("#wrapper").fadeTo(800, 1);
+                    });
                   });
-                });
-                return false;
-              });
+                  return false;
+                };
+              }(id));
+              console.log(div);
               i++;
               if (i >= max) break;
             }
