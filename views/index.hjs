@@ -2,18 +2,76 @@
 <html>
   <head>
     <title>{{ title }}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/index.css' />
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/comment.js"></script>
+    <script>
+      function createThumbnailPanorama(latlng, pov, linkControl, div) {
+        var panoOptions = {
+          position: latlng,
+          addressControl: false,
+          linksControl: linkControl,
+          panControl: false,
+          zoomControl: false,
+          enableCloseButton: false,
+          clickToGo: false,
+          disableDoubleClickZoom: false,
+          scrollwheel: false,
+          pov: pov,
+          visible: true
+        };
+        return new google.maps.StreetViewPanorama(div, panoOptions);
+      }
+
+      function initialize() {
+        var connection ={};
+        connection.socket = io.connect();
+        connection.socket.on("push_rooms", function(rooms) {
+          if (rooms) {
+            var max = $(".thumb").length;
+            var i = 0;
+            for (var id in rooms) {
+              var room = rooms[id];
+              var div = $(".thumb")[i];
+              var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
+              var pov = room.pov;
+              var panorama = createThumbnailPanorama(startLatlng, pov, false, div);
+              $(div).click(function (){
+                console.log("clicked", id);
+                $("#wrapper").fadeTo(800, 0.05, function() {
+                  $("#wrapper").attr("src", "/" + id).load(function() {
+                    $("#wrapper").fadeTo(800, 1);
+                  });
+                });
+                return false;
+              });
+              i++;
+              if (i >= max) break;
+            }
+          }
+        });
+        connection.socket.emit("get_rooms");
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
   </head>
   <body>
-    <div id="wrapper">
-      <div id="header"></div>
+    <iframe id="wrapper">
+    </iframe>
+
+    <div id="header"></div>
       <div id="container">
         <div id="left-column">
+        <div id="toggle-btn">&lt</div>
           <div id="left-column-container">
             <h1 id="title">{{ title }}</h1>
             <form>
               <input type="text" name="place" placeholder="Enter start place" />
-              <input type="submit" formaction="/new" formmethod="POST" value="START" />
+              <input type="submit" formaction="/new" formmethod="POST" value="START your walk" />
             </form>
             <p id="description">
               aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -24,8 +82,8 @@
         <div id="bottom-column">
           <div id="menu">
             <div id="menu-container">
-              <p id="now">> NOW</p>
-              <p id="past">> PAST</p>
+              <p id="now">&gt NOW</p>
+              <p id="past">&gt PAST</p>
             </div>
           </div>
           <div id="list">
@@ -47,6 +105,49 @@
         </div>
       </div>
       <div id="footer"></div>
-    </div>
+  <script type="text/javascript">
+    $(document).ready(function(){
+        $("#toggle-btn").click(toggleButtonClickHandler);
+
+        function toggleButtonClickHandler(){
+            if($(this).hasClass("close")){
+                $(this).removeClass("close");
+                $("#toggle-btn").html("&lt");
+                $("#left-column").css({
+                    "filter" : "alpha(opacity=0)",
+                    "-moz-opacity" : "0",
+                    "opacity" : "0"
+                });
+                $("#left-column-container").css({
+                    "display" : "inline-block"
+                });
+                $("#left-column").animate({
+                    "width" : "20%",
+                    "filter" : "alpha(opacity=100)",
+                    "-moz-opacity" : "1",
+                    "opacity" : "1"
+                }, 1000);
+            }else{
+                $(this).addClass("close");
+                $("#left-column").animate({
+                    "width" : "0",
+                    "filter" : "alpha(opacity=0)",
+                    "-moz-opacity" : "0",
+                    "opacity" : "0"
+                }, 1000, function(){
+                    $("#toggle-btn").html("&gt");
+                    $("#left-column-container").css({
+                        "display" : "none"
+                    });
+                    $("#left-column").animate({
+                        "filter" : "alpha(opacity=1)",
+                        "-moz-opacity" : "1",
+                        "opacity" : "1"
+                    });
+                });
+            }
+        }
+    });
+  </script>
   </body>
 </html>

@@ -1,0 +1,58 @@
+html, body, #streetview-canvas {
+    height: 100%;
+    margin: 0px;
+    padding: 0px
+}
+
+#map-canvas {
+    height: 240px;
+    width: 320px;
+    position: absolute;
+    right: 16px;
+    bottom: 24px;
+    border: 2px solid gray;
+    z-index: 999;
+}
+
+#party-canvas {
+    height: 240px;
+    width: 240px;
+    position: absolute;
+    left: 16px;
+    bottom: 64px;
+    border: 2px solid gray;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    color: azure;
+}
+
+#chat-input {
+    height: 24px;
+    width: 320px;
+    font-size: 100%;
+    position: absolute;
+    left: 16px;
+    bottom: 32px;
+    border: 2px solid gray;
+    z-index: 999;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: azure;
+}
+
+#comment-canvas {
+    pointer-events: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: transparent;
+    z-index: 998;
+}
+
+#join-area {
+    position: absolute;
+    height: 28px;
+    width: 158px;
+    left: 16px;
+    bottom: 32px;
+    z-index: 999;
+}
