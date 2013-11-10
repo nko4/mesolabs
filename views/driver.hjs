@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Walk-Sharing</title>
+  <link href='http://fonts.googleapis.com/css?family=Share+Tech+Mono' rel='stylesheet' type='text/css'/>
   <link rel='stylesheet' href='/stylesheets/main.css' />
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
@@ -94,19 +95,24 @@
   </script>
 </head>
 <body>
-  <div id="map-canvas"></div>
-  <div id="streetview-canvas"></div>
-  <div id="party-canvas">
-    <img src="{{icon}}" />{{user}}<br />
-  </div>
-  <canvas id="comment-canvas"></canvas>
-  <form onsubmit="sendChat(); return false;">
-    <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
-  </form>
-  <div id="custom-tweet-button"></div>
-  <div id="tweet-box">
-    <textarea id="tweet-input" maxlength="140" placeholder="Input tweet message..." autocomplete="off"  ></textarea>
-    <button id="tweet-post">POST</button>
-  </div>
+<div id="map-canvas"></div>
+<div id="streetview-canvas"></div>
+<div id="party-canvas">
+  <ul id="party-member-list">
+    <!--li class="party-member-icon" style="backgroud-image: url({{icon}});">party-member-name</li-->
+  </ul>
+</div>
+<canvas id="comment-canvas"></canvas>
+<form onsubmit="sendChat(); return false;">
+  <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off"/>
+</form>
+<div id="custom-tweet-button"></div>
+<div id="tweet-box">
+  <textarea id="tweet-input" maxlength="140" placeholder="Input tweet message..." autocomplete="off"></textarea>
+  <button id="tweet-post">POST</button>
+</div>
+<div id="rank-btn-wrap" style="bottom: 69px; left: 21px;">
+  <iframe id="rank-btn" src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
+</div>
 </body>
 </html>

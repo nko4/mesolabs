@@ -15,15 +15,15 @@ html, body, #streetview-canvas {
 }
 
 #party-canvas {
-    height: 194px;
-    width: 306px;
+    height: 174px;
+    width: 286px;
     position: absolute;
     left: 16px;
     bottom: 64px;
     border: 0px solid gray;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
-    padding: 7px;
+    padding: 17px;
     color: azure;
 }
 
@@ -32,6 +32,7 @@ html, body, #streetview-canvas {
     width: 306px;
     font-size: 100%;
     font-weight: 200;
+    font-family: 'Share Tech Mono';
     position: absolute;
     left: 16px;
     bottom: 32px;
@@ -41,6 +42,9 @@ html, body, #streetview-canvas {
     z-index: 999;
     background-color: rgba(0, 0, 0, 0.5);
     color: azure;
+}
+#chat-input:focus {
+    outline: deepskyblue solid 1px ;
 }
 
 #comment-canvas {
@@ -68,11 +72,13 @@ html, body, #streetview-canvas {
     background-color: rgba(255, 255, 255, 0.9);
     width: 32px;
     height: 32px;
-    left: 16px;
+    left: 33px;
     bottom: 280px;
     -moz-border-radius: 50px;
     -webkit-border-radius: 50px;
     border-radius: 50px;
+    font-family: 'Share Tech Mono';
+    z-index: 999;
 }
 #custom-tweet-button:hover {
     background-color: rgba(255, 255, 255, 0.5);
@@ -92,7 +98,7 @@ html, body, #streetview-canvas {
     bottom: 325px;
     display: none;
     text-align: right;
-
+    z-index: 999;
 }
 #tweet-box:after {
     content: '';
@@ -101,16 +107,19 @@ html, body, #streetview-canvas {
     border-right: 10px solid transparent;
     border-left: 10px solid transparent;
     bottom: -10px;
-    left: 6px;
+    left: 22px;
 }
 
 #tweet-input {
     padding: 5px;
- height:90px;
- width:294px;
+    height: 90px;
+    width: 294px;
     border-style: none;
     background: transparent;
-    resize:none;
+    resize: none;
+    font-size: 10pt;
+    font-family: 'Share Tech Mono';
+    z-index: 999;
 }
 #tweet-input:focus {
     outline: deepskyblue solid 1px ;
@@ -122,6 +131,7 @@ html, body, #streetview-canvas {
     border: none;
     color: white;
     right: 0;
+    z-index: 999;
 }
 #tweet-post:focus {
     outline: deepskyblue solid 1px ;
@@ -138,3 +148,43 @@ html, body, #streetview-canvas {
     background: transparent;
     color: deepskyblue;
 }
+
+.party-member-icon {
+    /*border: solid rgba(255,255,255,0.5) 1px;*/
+    position: relative;
+    display: inline-block;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    background-repeat: no-repeat;
+    background-position: top left;
+    -moz-background-size:cover;
+    background-size:cover;
+}
+
+#party-member-list {
+    margin: 0;
+    padding: 0;
+}
+#party-member-list>li {
+    list-style: none;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.party-member-name {
+    font-family: 'Share Tech Mono';
+    line-height: 32px;
+    padding-left: 37px;
+}
+
+#rank-btn-wrap {
+    position: absolute;
+    height: 25px;
+    background-color: RGBa(255, 255, 255, 0.8);
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    moz-border-radius: 2px;
+    z-index: 999;
+}
+
