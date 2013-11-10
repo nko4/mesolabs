@@ -9,6 +9,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script src="/javascripts/common.js"></script>
   <script src="/javascripts/comment.js"></script>
+  <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
   <script>
 
     function initialize() {
