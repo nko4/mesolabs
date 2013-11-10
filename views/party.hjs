@@ -32,6 +32,12 @@
         panorama.setPov(pov);
       });
 
+      //終了した情報受信
+      connection.socket.on('finished', function() {
+        alert("This walk was finished.");
+        //TODO: $("#caution")にいい感じに通知する
+      });
+
       connection.socket.emit("join", connection.pathname);
 
       initialClick(map);
@@ -42,6 +48,7 @@
   </script>
 </head>
 <body>
+  <div id="caution"></div>
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
   <div id="party-canvas">

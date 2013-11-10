@@ -98,7 +98,9 @@ connection.socket.on('party_changed', function(driver, party) {
   console.log(driver);
   console.log(party);
   $("#party-canvas").empty();
-  $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
+  if (driver) {
+    $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
+  }
   party.forEach(function(element) {
     $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
   });
