@@ -278,22 +278,24 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("get_rooms", function() {
-    var liveData = {};
+    var liveData = [];
     for (var id in liveRooms) {
       var room = liveRooms[id];
       var element = {
+        id: id,
         position: room.position,
         pov: room.pov
       }
-      liveData[id] = element;
+      liveData.unshift(element);
     }
-    var timeshiftData = {};
+    var timeshiftData = [];
     timeshiftRecords.forEach(function(id, room) {
       var element = {
+        id: id,
         position: room.position,
         pov: room.pov
       }
-      timeshiftData[id] = element;
+      timeshiftData.unshift(element);
     });
     socket.emit("push_liveRooms", liveData);
     socket.emit("push_timeshiftRooms", timeshiftData);
@@ -321,7 +323,7 @@ io.sockets.on("connection", function(socket) {
       //case "party_changed":
       //case "join":
       //case "disconnected":
-        socket.emit("party_changed", history_data.data.user, history_data.data.party);
+      socket.emit("party_changed", history_data.data.user, history_data.data.party);
     }
   });
 });

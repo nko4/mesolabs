@@ -74,12 +74,10 @@
         connection.socket.on("push_liveRooms", function(rooms) {
           if (rooms) {
             var max = $("#ws-list-live .thumb").length;
-            var i = 0;
-            for (var id in rooms) {
-              var room = rooms[id];
-              console.log("live", id, room);
+            for (var i = 0; i < rooms.length && i < max; i++) {
+              var room = rooms[i];
+              var id = room.id;
               var div = $("#ws-list-live .thumb")[i];
-              console.log(div);
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
               var panorama = createThumbnailPanorama(startLatlng, pov, div);
@@ -92,20 +90,16 @@
                   return false;
                 };
               }(id));
-              i++;
-              if (i >= max) break;
             }
           }
         });
         connection.socket.on("push_timeshiftRooms", function(rooms) {
           if (rooms) {
             var max = $("#ws-list-time-shift .thumb").length;
-            var i = 0;
-            for (var id in rooms) {
-              var room = rooms[id];
-              console.log("timeshift", id, room);
+            for (var i = 0; i < rooms.length && i < max; i++) {
+              var room = rooms[i];
+              var id = room.id;
               var div = $("#ws-list-time-shift .thumb")[i];
-              console.log(div);
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
               var panorama = createThumbnailPanorama(startLatlng, pov, div);
@@ -118,8 +112,6 @@
                   return false;
                 };
               }(id));
-              i++;
-              if (i >= max) break;
             }
           }
         });
@@ -191,7 +183,6 @@
         });
         $("#ws-live").click(liveButtonClickHandler);
         $("#ws-time-shift").click(timeShiftButtonClickHandler);
-//        $(".owl-item").click(thumbButtonClickHandler);
         var owlLive = $("#ws-list-live").data('owlCarousel');
         var owlTimeshift = $("#ws-list-time-shift").data('owlCarousel');
         owlLive.next();
@@ -220,7 +211,6 @@
         });        
 
         function liveButtonClickHandler(){
-            console.log("live");
             $("#ws-list-live").css({
                 "display" : "block"
             });
@@ -236,7 +226,6 @@
         }
 
         function timeShiftButtonClickHandler(){
-            console.log("time-shift");
             $("#ws-list-live").css({
                 "display" : "none"
             });
