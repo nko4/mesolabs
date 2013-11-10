@@ -36,9 +36,6 @@
           addPositionChangedListener(panorama, map, true);
           addPovChangedListener(panorama);
 
-          connection.socket.emit("drive", connection.pathname, startLatlng);
-
-          initialClick(map);
           if (status !== google.maps.StreetViewStatus.OK) {
             $("#caution").empty();
             $("#caution").append("<span>Please DRUG & DROP yellow man on the Right-Bottom map.</span>");
@@ -48,6 +45,44 @@
               }, 5000);
             });
           }
+
+          $('#custom-tweet-button').click(function () {
+            if ($('#tweet-box').css('display') !== 'none') {
+              $('#tweet-box').animate(
+                  {'height': '0px'},
+                  200,
+                  function () {
+                    $('#tweet-box').css('display', 'none');
+                    $('#tweet-input').css('display', 'none');
+                  }
+              );
+            } else {
+              $('#tweet-box').css('display', 'block').animate(
+                  {'height': '124px'},
+                  500,
+                  function () {
+                    $('#tweet-input').css('display', 'block');
+                    $('#tweet-input').val(' - ' + panorama.A.view.description + ' http://mesolabs.2013.nodeknockout.com/' + connection.pathname + ' #walk_sharing');
+                  }
+              );
+            }
+          });
+
+          $('#tweet-post').click(function () {
+            $.get('/tweet?lat=' + panorama.position.nb + '&long=' + panorama.position.ob + '&msg=' + encodeURIComponent($('#tweet-input').val()));
+            $('#tweet-input').val('');
+            $('#tweet-box').animate(
+                {'height': '0px'},
+                200,
+                function () {
+                  $('#tweet-box').css('display', 'none');
+                  $('#tweet-input').css('display', 'none');
+                }
+            );
+          });
+
+          connection.socket.emit("drive", connection.pathname, startLatlng);
+          initialClick(map);
         });
       });
     }
@@ -87,5 +122,10 @@
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>
   <div id="count"></div>
+  <div id="custom-tweet-button"></div>
+  <div id="tweet-box">
+    <textarea id="tweet-input" maxlength="140" placeholder="Input tweet message..." autocomplete="off"  ></textarea>
+    <button id="tweet-post">POST</button>
+  </div>
 </body>
 </html>

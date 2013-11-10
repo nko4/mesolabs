@@ -1,4 +1,6 @@
 exports.index = function(req, res) {
+  var liveData = module.parent.exports.liveRooms[req.path.slice(1)];
+  var timeshiftData = module.parent.exports.timeshiftRooms[req.path.slice(1)];
   var start = req.session.start;
   if (start) {
     // ドライバーが開始した場合
@@ -16,13 +18,11 @@ exports.index = function(req, res) {
       icon: req.session.passport.user.icon
     });
   } else {
-    var liveData = module.parent.exports.liveRooms[req.path.slice(1)];
-    var timeshiftData = module.parent.exports.timeshiftRooms[req.path.slice(1)];
-
     if (liveData) {
       // 途中参加したときの処理
-      if (req.session.passport.user) {
-        // Twitter認証済みの場合
+      if (req.session.room) {
+        // ROOMがクエリパラメータに入っている = Twitter認証ボタンを押して認証した
+        req.session.room = null;
         res.render('party', {
           nb: liveData.position.nb,
           ob: liveData.position.ob,

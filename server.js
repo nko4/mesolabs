@@ -36,6 +36,7 @@ if (!isProduction) {
 app.get('/', routes.index);
 app.post('/new', routes.new);
 app.get('/join', routes.join);
+app.get('/tweet', auth.tweet);
 app.get('/auth/twitter', auth.passport.authenticate('twitter'));
 app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: "/", failureFlash: true}), routes.callback);
 app.get('/auth/logout', routes.logout);
@@ -81,6 +82,9 @@ io.set('authorization', function(handshakeData, callback) {
 io.sockets.on("connection", function(socket) {
   var session = socket.handshake.session;
   var user = session.passport.user;
+  if(user && user.oauth_token)  delete user.oauth_token;
+  if(user && user.oauth_token_secret) delete user.oauth_token_secret;
+  console.log("user:", user);
 
   // ドライバーが最初にやってきたときの処理
   socket.on("drive", function(room, startLocation) {

@@ -12,13 +12,22 @@ exports.index = function(req, res){
 exports.new = function(req, res) {
   req.session.start = req.body.place;
   req.session.room = null;
-  res.redirect("/auth/twitter");
+  if (req.session.passport.user) {
+    exports.callback(req, res);
+  } else {
+    res.redirect("/auth/twitter");
+  }
 };
 
 exports.join = function(req, res) {
   req.session.start = null;
   req.session.room = req.query.room;
-  res.redirect("/auth/twitter");
+  console.log()
+  if (req.session.passport.user) {
+    exports.callback(req, res);
+  } else {
+    res.redirect("/auth/twitter");
+  }
 };
 
 exports.callback = function(req, res) {
@@ -34,7 +43,7 @@ exports.callback = function(req, res) {
 };
 
 exports.logout = function(req, res) {
-  req.session.destroy();
-  req.logout();
+//  req.session.destroy();
+//  req.logout();
   res.send("session timed out. <a href='/'> *TOP* </a>");
 }
