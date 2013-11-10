@@ -64,23 +64,31 @@ a {
 
 #left-column {
   width: 20%;
-  min-width: 252px;
   height: 100%;
   color: RGBa(255,255,255,1);
   background-color: RGBa(0,0,0,0.5);
   position: absolute;
   top: 0;
   left: 0;
+  overflow: hidden;
+}
+
+#left-column #rank-btn {
+  background-color: RGBa(255,255,255,0.8);
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  moz-border-radius: 2px;
+  margin: 30px 0;
 }
 
 #left-column #toggle-btn {
   cursor:pointer;
   position: absolute;
   right : 0;
-  top : 13%;
+  top : 85px;
   color: RGBa(255,255,255,1);
   background-color: RGBa(0,0,0,0.5);
-  width: 40px;
+  width: 50px;
   height: 50px;
   text-align: center;
   line-height: 50px;
@@ -91,7 +99,7 @@ a {
 }
 
 #left-column #toggle-btn.close {
-  right: -40px;
+  right: -50px;
   border-radius: 0 50px 50px 0;
   -webkit-border-radius: 0 50px 50px 0;
   moz-border-radius: 0 50px 50px 0;
@@ -100,37 +108,24 @@ a {
 #left-column #left-column-container {
   over-flow: hidden;
   width: 80%;
-  height: 80%;
-  /*
-  background-color: RGBa(255,255,255,0.5);
-  */
-  margin: 130px 10% 130px;
+  min-width: 80%;
+  margin: 140px 10% 130px;
   display: inline-block;
 }
-
-#left-column #left-column-container {}
 
 #left-column #left-column-container #title {
   margin: 10px 0;
   font-size: xx-large;
   font-weight: bold;
-  /*
-  font-family: 'Codystar', cursive;
-  font-family: 'Snippet', sans-serif;
-  font-family: 'Monofett', cursive;
-  font-family: 'Ribeye Marrow', cursive;
-
-  font-family: 'Voltaire', sans-serif;
-
-  */
   font-family: 'Share Tech Mono', sans-serif;
   letter-spacing: -0.04em;
 }
 
 #left-column #left-column-container input[type="text"]{
-  margin: 10px 0;
-  width: 99%;     /* 100%にするとなぜかボタンよりおおきくなってしまうため99% */
-  border: none;
+  margin: 20px 0 10px;
+  height: 30px;
+  width: 93%;
+  padding-left: 10px;
 }
 
 #left-column #left-column-container input[type="submit"] {
@@ -139,26 +134,6 @@ a {
   border: 0;
   width: 100%;
   height: 40px;
-  font-family: 'Share Tech Mono', sans-serif;
-  font-size: medium;
-}
-
-#left-column #left-column-container #description {
-  margin: 5px 0;
-  word-wrap: break-word;
-  height: 30%;
-  overflow: hidden;
-  font-size: small;
-}
-
-#left-column #left-column-container #now {
-  margin: 20px 0 0;
-  font-family: 'Share Tech Mono', sans-serif;
-  font-size: medium;
-}
-
-#left-column #left-column-container #past {
-  margin: 20px 0 0;
   font-family: 'Share Tech Mono', sans-serif;
   font-size: medium;
 }
@@ -191,16 +166,16 @@ a {
   width : 100%;
   height: 130px;
   color: RGBa(255,255,255,1);
-  background-color: RGBa(255,255,255,0.5);
-  position:absolute;
-  bottom:0;
+  background-color: RGBa(255,255,255,0.3);
+  position: absolute;
+  bottom: 0;
+  overflow: hidden;
 }
 
 #bottom-column #menu {
   width: 20%;
-  min-width: 252px;
   height: 100%;
-  float: left;
+  position: absolute;
 }
 
 #bottom-column #menu #menu-container {
@@ -215,59 +190,35 @@ a {
 
 #bottom-column #menu #menu-container {
   font-size: x-large;
+  cursor:pointer;
 }
 
-#bottom-column #menu #menu-container #live {}
+#bottom-column #menu #menu-container #live {
+  font-family: 'Share Tech Mono', sans-serif;
+  cursor:pointer;
+}
 
-#bottom-column #menu #menu-container #time-shift {}
+#bottom-column #menu #menu-container #time-shift {
+  font-family: 'Share Tech Mono', sans-serif;
+}
 
 #bottom-column #list-wrap {
-  position: relative;
-  width: 80%;
-  height: 100%;
-  background: #efefef;
-  float: left;
-}
-
-#bottom-column #list-wrap .show {
-  cursor: pointer;
-  background: #FF3399;
-}
-
-#bottom-column #list-wrap .hide {
-  background: #ccc;
-}
-
-
-#bottom-column #list-wrap #list {
   width : 80%;
-  height: 100%;
-  float: left;
   overflow: hidden;
-  position: relative;
+  position: absolute;
+  right: 0;
 }
 
-#bottom-column #list-wrap #prev {
-  left: 0px; //戻るボタンを左端に配置
-  background-color: #FF0000;
-  width: 10%;
-  height:100%;
-  float:left;
-}
-
-#bottom-column #list-wrap #next {
-  right: 0px; //進むボタンを右端に配置
-  background-color: #00FF00;
-  width: 10%;
-  height:100%;
-  float:left;
-}
-
-#bottom-column #list-wrap #list ul {
+#bottom-column #list-live, #bottom-column #list-time-shift {
+  width: 100%;
   height: 100%;
 }
 
-#bottom-column #list-wrap #list ul li{
+#bottom-column #list-live ul , #bottom-column #list-time-shift ul {
+  height: 100%;
+}
+
+#bottom-column #list-live ul li, #bottom-column #list-time-shift ul li{
   width: 20%;
   height: 110px;
   float: left;
@@ -275,11 +226,56 @@ a {
   display: inline;
 }
 
-#bottom-column #list-wrap #list ul li .thumb {
+#bottom-column #list-time-shift {
+    display: none;
+}
+#bottom-column .thumb {
   width: 92%;
-  height: 94px;
-  background-color: #ccffcc;
-  border: 8px solid RGBa(255,255,255,0.5);
+  height: 114px;
+  background-color: #dcdcdc;
+  border: 8px solid RGBa(255,255,255,1);
 }
 
 #footer {}
+
+.owl-buttons {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+}
+
+.owl-theme .owl-controls .owl-buttons .owl-prev {
+  left: 0;
+  background-color: RGBa(0,0,0,1);
+  filter: alpha(opacity=80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  width: 30px;
+  height: 45px;
+  border-radius: 50px;
+  -webkit-border-radius: 50px;
+  moz-border-radius: 50px;
+  line-height: 45px;
+  text-align: center;
+  font-size: x-large;
+  position: absolute;
+  text-align: center;
+}
+
+.owl-theme .owl-controls .owl-buttons .owl-next {
+  right:0;
+  background-color: RGBa(0,0,0,1);
+  filter: alpha(opacity=80);
+  -moz-opacity: 0.8;
+  opacity: 0.8;
+  width: 30px;
+  height: 45px;
+  border-radius: 50px;
+  -webkit-border-radius: 50px;
+  moz-border-radius: 50px;
+  line-height: 45px;
+  text-align: center;
+  font-size: x-large;
+  position: absolute;
+  text-align: center;
+}

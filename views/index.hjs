@@ -3,12 +3,15 @@
   <head>
     <title>{{ title }}</title>
     <link rel='stylesheet' href='/stylesheets/index.css' />
+    <link rel='stylesheet' href='/stylesheets/owl.carousel.css' />
+    <link rel='stylesheet' href='/stylesheets/owl.theme.css' />
     <link href='http://fonts.googleapis.com/css?family=Snippet|Codystar|Monofett|Share+Tech+Mono|Ribeye+Marrow|Voltaire' rel='stylesheet' type='text/css'>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/javascripts/comment.js"></script>
+    <script src="/javascripts/owl.carousel.js"></script>
     <script>
       function createThumbnailPanorama(latlng, pov, linkControl, div) {
         var panoOptions = {
@@ -69,57 +72,13 @@
         <div id="left-column">
           <div id="toggle-btn">&lt</div>
           <div id="left-column-container">
-            <iframe src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
             <h1 id="title">{{ title }}</h1>
             <form>
               <input type="text" name="place" placeholder="Enter start place" />
               <input type="submit" formaction="/new" formmethod="POST" value="START your walk" />
             </form>
-            <p id="description">
-              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            </p>
-            <!--
-            <p id="now">&gt Now</p>
-            <div id="list">
-              <ul>
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-              </ul>
-            </div>
-            <p id="past">&gt Past</p>
-            <div id="list">
-              <ul>
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-              </ul>
-            -->
-            </div>
+            <iframe id="rank-btn" src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
+          </div>
         </div>
         <div id="bottom-column">
           <div id="menu">
@@ -129,33 +88,25 @@
             </div>
           </div>
           <div id="list-wrap">
-            <div id="list">
-              <ul>
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-                <li>
-                  <div class="thumb"></div>
-                </li>  
-              </ul>
+            <div id="list-live" class="owl-carousel">
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+            </div>
+            <div id="list-time-shift" class="owl-carousel">
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
             </div>
           </div>
         </div>
@@ -163,6 +114,24 @@
       <div id="footer"></div>
   <script type="text/javascript">
     $(document).ready(function(){
+        $("#list-live").owlCarousel({
+            "pagination" : false,
+            "navigation" : true,
+            "navigationText" : ["<", ">"]
+        });
+        $("#list-time-shift").owlCarousel({
+            "pagination" : false,
+            "navigation" : true,
+            "navigationText" : ["<", ">"]
+        });
+        $("#live").click(liveButtonClickHandler);
+        $("#time-shift").click(timeShiftButtonClickHandler);
+        var owlLive = $("#list-live").data('owlCarousel');
+        var owlTimeshift = $("#list-time-shift").data('owlCarousel');
+        owlLive.next();
+        owlLive.prev();
+        owlTimeshift.next();
+        owlTimeshift.prev();
         $("#toggle-btn").click(toggleButtonClickHandler);
         $("input[type='submit']").mouseover(function(){
             $(this).css({
@@ -174,72 +143,47 @@
                 "box-shadow" : "none"
             });
         });
-        $("#left-column #left-column-container #list ul li").mouseover(function(){
+        $("#bottom-column #live, #bottom-column #time-shift").mouseover(function(){
             $(this).css({
-                "box-shadow" : "1px 1px 3px #eee8aa, 1px -1px 3px #eee8aa, -1px 1px 3px #eee8aa, -1px -1px 3px #eee8aa"
+                "text-shadow" : "1px 1px 3px #eee8aa, 1px -1px 3px #eee8aa, -1px 1px 3px #eee8aa, -1px -1px 3px #eee8aa"
             });
         });
-        $("#left-column #left-column-container #list ul li").mouseout(function(){
+        $("#bottom-column #live, #bottom-column #time-shift").mouseout(function(){
             $(this).css({
-                "box-shadow" : "none"
+                "text-shadow" : "none"
             });
-        });
-        
-        var li_move = 2;
-        $("#list-wrap").prepend('<div id="prev" class="hide"></div>');
-        $("#list-wrap").append('<div id="next" class="show"></div>');
-        var list_wid = $("#list").width();
-        var li_wid = $("#list li").outerWidth();
-        var li_num = $("#list li").size();
-        var ul_wid = li_wid*li_num;
-        $('#list ul').css({
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            width: ul_wid+'px'
-        });
+        });        
 
-        $('#prev').click(function(){
-            if($(this).attr("class") != "hide") {
-                $('#list ul:not(:animated)').animate(
-                    {left:'+='+li_wid*li_move},
-                    600,
-                    function(){
-                        var ul_pos = boxPosition("#list ul","left");
-                        console.log("prev ---");
-                        console.log("ul_pos", ul_pos);
-                        $('#next').attr("class","show");
-                        if(ul_pos === 0) {
-                            $('#prev').attr("class","hide");
-                        }
-                    }
-                );
-            }
-        });
+        function liveButtonClickHandler(){
+            console.log("live");
+            $("#list-live").css({
+                "display" : "block"
+            });
+            $("#list-time-shift").css({
+                "display" : "none"
+            });
+            $("#bottom-column #live").css({
+                "color" : "#FFB400"
+            });
+            $("#bottom-column #time-shift").css({
+                "color" : "#FFFFFF"
+            });
+        }
 
-        $('#next').click(function(){
-            if($(this).attr("class") != "hide") {
-                $('#list ul:not(:animated)').animate(
-                    {left:'-='+li_wid*li_move},
-                    600,
-                    function(){
-                        var ul_pos = boxPosition("#list ul","left");
-                        console.log("next ---");
-                        console.log("ul_pos", ul_pos);
-                        console.log("ul_wid+ul_pos", ul_wid+ul_pos);
-                        console.log("list_wid", list_wid);
-                        $('#prev').attr("class","show");
-                        if(list_wid > (ul_wid+ul_pos)) {
-                            $('#next').attr("class","hide");
-                        }
-                    }
-                );
-            }
-        });
-
-        function boxPosition(ele,pos) {
-            var position = $(ele).position();
-            return position[pos];
+        function timeShiftButtonClickHandler(){
+            console.log("time-shift");
+            $("#list-live").css({
+                "display" : "none"
+            });
+            $("#list-time-shift").css({
+                "display" : "block"
+            });
+            $("#bottom-column #time-shift").css({
+                "color" : "#FFB400"
+            });
+            $("#bottom-column #live").css({
+                "color" : "#FFFFFF"
+            });
         }
 
         function toggleButtonClickHandler(){
@@ -250,12 +194,10 @@
                 $("#left-column").css({
                     "filter" : "alpha(opacity=0)",
                     "-moz-opacity" : "0",
-                    "opacity" : "0"
+                    "opacity" : "0",
+                    "overflow" : "hidden"
                 });
                 $("#left-column-container").css({
-                    "display" : "inline-block",
-                });
-                $("#bottom-column").css({
                     "display" : "inline-block"
                 });
                 $("#left-column").animate({
@@ -265,7 +207,7 @@
                     "opacity" : "1"
                 }, 500, function(){
                     $("#left-column").css({
-                        "min-width" : "252px"
+                        "display" : "inline-block"
                     });
                     $("#left-column-container").animate({
                         "filter" : "alpha(opacity=100)",
@@ -273,7 +215,9 @@
                         "opacity" : "1"
                     }, 300);
                 });
-                $("#bottom-column").animate({
+                $("#bottom-column").css({
+                    "display" : "inline-block"
+                }).animate({
                     "height" : "130px",
                     "filter" : "alpha(opacity=100)",
                     "-moz-opacity" : "1",
@@ -299,7 +243,9 @@
                     "min-width" : "0"
                 }, 1000, function(){
                     $("#toggle-btn").html("&gt");
-                    $("#left-column").animate({
+                    $("#left-column").css({
+                        "overflow" : "visible"
+                    }).animate({
                         "filter" : "alpha(opacity=1)",
                         "-moz-opacity" : "1",
                         "opacity" : "1"
