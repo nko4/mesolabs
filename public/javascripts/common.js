@@ -104,6 +104,10 @@ connection.socket.on('party_changed', function(driver, party) {
   party.forEach(function(element) {
     $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
   });
+  if (!driver) {
+    alert("This walk was finished.");
+    //TODO: $("#caution")にいい感じに通知する
+  }
 });
 
 getTimestamp = function() {

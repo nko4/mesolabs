@@ -163,11 +163,13 @@ io.sockets.on("connection", function(socket) {
           return (v.name !== user.name);
         });
         rooms[room].party = array;
+        socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
+
         if (rooms[room].driver.name == user.name) {
           rooms[room].driver = null;
-          socket.broadcast.to(room).emit("finished");
+          socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
+          rooms[room] = null;
         }
-        socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
       }
       //TODO: 特定ルームに入っている場合、退室メッセージを流す？
       console.log(socket.id + " disconnected from " + room);
