@@ -45,7 +45,7 @@ a {
   color: #00B7FF;
 }
 
-#wrapper {
+#ws-wrapper {
   width: 100%;
   height: 100%;
   min-height: 100%;
@@ -56,13 +56,13 @@ a {
   vertical-align: bottom;
 }
 
-#header {}
-#container {
+#ws-header {}
+#ws-container {
   width: 100%;
   height: 0;
 }
 
-#left-column {
+#ws-left-column {
   width: 20%;
   height: 100%;
   color: RGBa(255,255,255,1);
@@ -73,7 +73,7 @@ a {
   overflow: hidden;
 }
 
-#left-column #rank-btn {
+#ws-left-column #ws-rank-btn {
   background-color: RGBa(255,255,255,0.8);
   border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -81,11 +81,11 @@ a {
   margin: 30px 0;
 }
 
-#left-column #toggle-btn {
+#ws-left-column #ws-toggle-btn {
   cursor:pointer;
   position: absolute;
   right : 0;
-  top : 85px;
+  top : 35px;
   color: RGBa(255,255,255,1);
   background-color: RGBa(0,0,0,0.5);
   width: 50px;
@@ -98,22 +98,22 @@ a {
   font-size: xx-large;
 }
 
-#left-column #toggle-btn.close {
+#ws-left-column #ws-toggle-btn.close {
   right: -50px;
   border-radius: 0 50px 50px 0;
   -webkit-border-radius: 0 50px 50px 0;
   moz-border-radius: 0 50px 50px 0;
 }
 
-#left-column #left-column-container {
+#ws-left-column #ws-left-column-container {
   over-flow: hidden;
   width: 80%;
   min-width: 80%;
-  margin: 140px 10% 130px;
+  margin: 120px 10% 130px;
   display: inline-block;
 }
 
-#left-column #left-column-container #title {
+#ws-left-column #ws-left-column-container #ws-title {
   margin: 10px 0;
   font-size: xx-large;
   font-weight: bold;
@@ -121,14 +121,14 @@ a {
   letter-spacing: -0.04em;
 }
 
-#left-column #left-column-container input[type="text"]{
+#ws-left-column #ws-left-column-container input[type="text"]{
   margin: 20px 0 10px;
   height: 30px;
   width: 93%;
   padding-left: 10px;
 }
 
-#left-column #left-column-container input[type="submit"] {
+#ws-left-column #ws-left-column-container input[type="submit"] {
   margin: 5px 0;
   background-color: #FFB400;
   border: 0;
@@ -138,31 +138,7 @@ a {
   font-size: medium;
 }
 
-#left-column #left-column-container #list {
-  width : 100%;
-  height: 40px;
-}
-
-#left-column #left-column-container #list ul {
-  width: 100%;
-  height: 100%;
-}
-
-#left-column #left-column-container #list ul li{
-  width: 30px;
-  height: 30px;
-  margin: 5px;
-  float: left;
-}
-
-#left-column #left-column-container #list ul li .thumb {
-  width: 24px;
-  height: 24px;
-  background-color: #ccffcc;
-  border: 3px solid RGBa(255,255,255,0.5);
-}
-
-#bottom-column {
+#ws-bottom-column {
   width : 100%;
   height: 130px;
   color: RGBa(255,255,255,1);
@@ -172,13 +148,13 @@ a {
   overflow: hidden;
 }
 
-#bottom-column #menu {
+#ws-bottom-column #ws-menu {
   width: 20%;
   height: 100%;
   position: absolute;
 }
 
-#bottom-column #menu #menu-container {
+#ws-bottom-column #ws-menu #ws-menu-container {
   width: 80%;
   max-height: 60%;
   /*
@@ -188,37 +164,37 @@ a {
   display: inline-block;
 }
 
-#bottom-column #menu #menu-container {
+#ws-bottom-column #ws-menu #ws-menu-container {
   font-size: x-large;
   cursor:pointer;
 }
 
-#bottom-column #menu #menu-container #live {
+#ws-bottom-column #ws-menu #ws-menu-container #ws-live {
   font-family: 'Share Tech Mono', sans-serif;
   cursor:pointer;
 }
 
-#bottom-column #menu #menu-container #time-shift {
+#ws-bottom-column #ws-menu #ws-menu-container #ws-time-shift {
   font-family: 'Share Tech Mono', sans-serif;
 }
 
-#bottom-column #list-wrap {
+#ws-bottom-column #ws-list-wrap {
   width : 80%;
   overflow: hidden;
   position: absolute;
   right: 0;
 }
 
-#bottom-column #list-live, #bottom-column #list-time-shift {
+#ws-bottom-column #ws-list-live, #ws-bottom-column #ws-list-time-shift {
   width: 100%;
   height: 100%;
 }
 
-#bottom-column #list-live ul , #bottom-column #list-time-shift ul {
+#ws-bottom-column #ws-list-live ul , #ws-bottom-column #ws-list-time-shift ul {
   height: 100%;
 }
 
-#bottom-column #list-live ul li, #bottom-column #list-time-shift ul li{
+#ws-bottom-column #ws-list-live ul li, #ws-bottom-column #ws-list-time-shift ul li{
   width: 20%;
   height: 110px;
   float: left;
@@ -226,17 +202,17 @@ a {
   display: inline;
 }
 
-#bottom-column #list-time-shift {
+#ws-bottom-column #ws-list-time-shift {
     display: none;
 }
-#bottom-column .thumb {
+#ws-bottom-column .thumb {
   width: 92%;
   height: 114px;
   background-color: #dcdcdc;
   border: 8px solid RGBa(255,255,255,1);
 }
 
-#footer {}
+#ws-footer {}
 
 .owl-buttons {
   position: absolute;
