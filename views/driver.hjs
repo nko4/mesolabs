@@ -10,6 +10,7 @@
   <script src="/javascripts/common.js"></script>
   <script src="/javascripts/comment.js"></script>
   <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
+  <script src="/javascripts/ifvisible.js"></script>
   <script>
 
     function initialize() {
@@ -36,6 +37,25 @@
     }
     google.maps.event.addDomListener(window, 'load', initialize);
 
+    var idleTimer;
+    ifvisible.on("idle", function() {
+      var counter = 10;
+      idleTimer = setInterval(function(){
+        if(counter < 0) {
+          location.href = "/auth/logout";
+        }
+        counter--;
+        console.log("away from table, prease move in " + counter + "seconds.");
+        //TODO: 表示
+      }, 1000)
+    });
+    ifvisible.on("wakeup", function() {
+      if(idleTimer){
+        //TODO: 表示
+        console.log("well come back");
+        clearInterval(idleTimer);
+      }
+    });
   </script>
 </head>
 <body>
