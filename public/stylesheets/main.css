@@ -22,7 +22,7 @@ html, body, #streetview-canvas {
     bottom: 64px;
     border: 2px solid gray;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 990;
     color: azure;
 }
 
@@ -55,4 +55,26 @@ html, body, #streetview-canvas {
     left: 16px;
     bottom: 32px;
     z-index: 999;
+}
+
+#caution {
+    position: absolute;
+    height: 24px;
+    width: 100%;
+    top: 0px;
+    text-align: center;
+    z-index: 990;
+    background-color: #ffcaca;
+    display: none;
+}
+
+#count {
+    position: absolute;
+    height: 24px;
+    width: 240px;
+    left: 16px;
+    bottom: 64px;
+    z-index: 999;
+    color: #DDDDDD;
+    text-align: right;
 }

@@ -4,7 +4,6 @@ function createMap(latlng) {
     zoom: 15,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  console.log(3.5, mapOptions);
   return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 }
 
@@ -34,7 +33,7 @@ function addPositionChangedListener(panorama, map, isDriver) {
     var position = panorama.getPosition();
 
     // 動いてないのに呼ばれることがあるので防御策
-    if (!prev || (prev && prev.nb === position.nb && prev.ob === position.ob)) {
+    if (prev && prev.nb === position.nb && prev.ob === position.ob) {
       prev = position;
       return;
     }
@@ -81,10 +80,10 @@ connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname.sl
 connection.socket = io.connect();
 connection.disconnect = function() {
   connection.socket.emit("part", connection.pathname);
-}
+};
 window.onbeforeunload = function(event){
   connection.disconnect();
-}
+};
 // チャット送信
 connection.sendMessage = function(message) {
   connection.socket.emit('chat_message', connection.pathname, message);
@@ -95,21 +94,33 @@ connection.socket.on('chat_message', function(username, message) {
   createComment(message);
 });
 connection.socket.on('party_changed', function(driver, party) {
-  console.log(driver);
-  console.log(party);
   $("#party-canvas").empty();
   if (driver) {
     $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
   }
-  party.forEach(function(element) {
-    $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
-  });
-  if (!driver) {
-    alert("This walk was finished.");
-    //TODO: $("#caution")にいい感じに通知する
+  if(party){
+    party.forEach(function(element) {
+      $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
+    });
   }
 });
-
+connection.socket.on('finished', function() {
+  console.log("finished");
+  $("#caution").empty();
+  $("#caution").append("<span>This walk has finished.</span>");
+  $("#caution").show();
+});
+connection.socket.on('viewer_changed', function(num) {
+  console.log("count", num);
+  $("#count").empty();
+  if (num <= 0) {
+    // 何も表示しない
+  } else if (num == 1) {
+    $("#count").append("<span>...and " + num + " other viewer.</span>");
+  } else {
+    $("#count").append("<span>...and " + num + " other viewers.</span>");
+  }
+});
 getTimestamp = function() {
   return (new Date()).getTime();
 };

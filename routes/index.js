@@ -36,5 +36,5 @@ exports.callback = function(req, res) {
 exports.logout = function(req, res) {
   req.session.destroy();
   req.logout();
-  res.redirect('/');
+  res.send("session timed out. <a href='/'> *TOP* </a>");
 }

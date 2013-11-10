@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Walk-Sharing</title>
+  <link rel='stylesheet' href='/stylesheets/main.css' />
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="/javascripts/common.js"></script>
+  <script src="/javascripts/comment.js"></script>
+  <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
+  <script>
+
+    function initialize() {
+      commentCanvasInit();
+      var startLatlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
+      var map = createMap(startLatlng);
+      var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
+      var panorama = createPanorama(startLatlng, pov, false);
+      map.setStreetView(panorama);
+      addPositionChangedListener(panorama, map, false);
+
+      // panoramaがちゃんと作れたか確認
+      var service = new google.maps.StreetViewService();
+      var statusFlag = false;
+      service.getPanoramaByLocation(startLatlng, 50, function(data, status) {
+        statusFlag = (status === google.maps.StreetViewStatus.OK);
+      });
+
+        // 位置情報変更受信
+      connection.socket.on('moved', function(position){
+        var latlng = new google.maps.LatLng(position.nb, position.ob);
+        if (statusFlag) {
+          panorama.setPosition(latlng);
+        } else {
+          service.getPanoramaByLocation(latlng, 50, function(data, status) {
+            if (status === google.maps.StreetViewStatus.OK) {
+              panorama = createPanorama(latlng, pov, false);
+              addPositionChangedListener(panorama, map, false);
+              map.setStreetView(panorama);
+              statusFlag = true;
+            } else {
+              panorama.setPosition(latlng);
+              statusFlag = false;
+            }
+          });
+        }
+      });
+
+      //視点変更受信
+      connection.socket.on('view_changed', function(pov){
+        panorama.setPov(pov);
+      });
+
+      connection.socket.emit('request_history_list', connection.pathname);
+      
+      connection.socket.on('history_timestamp', function(start_time, timestamp_array) {
+          var elapsed_time = 0, position = 0;
+          var TimeShiftTimer = setInterval(function(){
+            elapsed_time += 500;
+            for(; position < timestamp_array.length; position++){
+              if(timestamp_array[position] <= start_time + elapsed_time) {
+                connection.socket.emit('request_history', connection.pathname, position);
+                console.log("requested", position);
+              } else{
+                console.log("breaked", position);
+                break;
+              }
+            }
+            console.log("finished", position);
+            if(timestamp_array.length == position) {
+              connection.socket.emit('request_history', connection.pathname, position);
+              console.log("last one requested", position);
+              clearInterval(TimeShiftTimer);
+            }
+          }, 500);
+      });
+
+      initialClick(map);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+  </script>
+</head>
+<body>
+  <div id="caution" style="display: block;">You're in the time-shift mode.</div>
+  <div id="map-canvas"></div>
+  <div id="streetview-canvas"></div>
+  <div id="party-canvas"></div>
+  <canvas id="comment-canvas"></canvas>
+  <form>
+    <input id="chat-input" type="text" name="chat" value="You cannot send chat messages." disabled />
+  </form>
+  <div id="count"></div>
+</body>
+</html>

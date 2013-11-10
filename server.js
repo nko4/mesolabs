@@ -56,8 +56,10 @@ var server = http.createServer(app).listen(port, function(err) {
 });
 
 var io = sio.listen(server);
-var rooms = {};
-module.exports.rooms = rooms;
+var liveRooms = {};
+var timeshiftRooms = {};
+module.exports.liveRooms = liveRooms;
+module.exports.timeshiftRooms = timeshiftRooms;
 
 io.set('authorization', function(handshakeData, callback) {
   if (handshakeData.headers.cookie) {
@@ -79,196 +81,230 @@ io.set('authorization', function(handshakeData, callback) {
 io.sockets.on("connection", function(socket) {
   var session = socket.handshake.session;
   var user = session.passport.user;
-  console.log("user:", user);
 
+  // ドライバーが最初にやってきたときの処理
+  socket.on("drive", function(room, startLocation) {
+    var timestamp = getTimestamp();
+    if (!room) return;
+    if (!liveRooms[room]) {
+      var data = {
+        is_finished: false,
+        history: [],
+        timestamp_history:[],
+        start_time: timestamp,
+        start_position: startLocation,
+        position: startLocation,
+        driver: user,
+        party: [],
+        viewer: 0,
+        pov: {heading: 0, pitch: 0},
+        start_pov: {heading: 0, pitch: 0}
+      };
+      liveRooms[room] = data;
+    }
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
+      event_type: "party_changed",
+      data: {
+        user: user,
+        party: liveRooms[room].party
+      }
+    });
+    socket.join(room);
+    socket.emit("party_changed", liveRooms[room].driver, liveRooms[room].party);
+  });
+
+  // ドライバーが移動したときの処理
   socket.on("moved", function(room, position) {
     if (!room) return;
-    if (!rooms[room]) return;
+    if (!liveRooms[room]) return;
     var timestamp = getTimestamp();
-    console.log("moved:", room, position, timestamp);
-    rooms[room].position = position;
-    socket.broadcast.to(room).emit("moved", position, timestamp);
-    // TODO: データ保存
-    rooms[room].history.push({
-      timestamp: getTimestamp(),
+    liveRooms[room].position = position;
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
       event_type: "moved",
       data: { 
         user: user,
         position: position
       }
     });
+    socket.broadcast.to(room).emit("moved", position);
   });
-  
+
+  // ドライバーが視点を変更したときの処理
   socket.on("view_changed", function(room, pov) {
     if (!room) return;
-    if (!rooms[room]) return;
+    if (!liveRooms[room]) return;
     var timestamp = getTimestamp();
-    console.log("view_changed:", room, pov, timestamp);
-    rooms[room].pov = pov;
-    socket.broadcast.to(room).emit("view_changed", pov, timestamp);
-    // TODO: データ保存
-    rooms[room].history.push({
-      timestamp: getTimestamp(),
+    liveRooms[room].pov = pov;
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
       event_type: "view_changed",
       data: { 
         user: user,
         pov: pov
       }
     });
+    socket.broadcast.to(room).emit("view_changed", pov);
   });
 
+  // ドライバーか同乗者がチャットを送信したときの処理
   socket.on("chat_message", function(room, message) {
-    console.log(io.sockets.manager.roomClients[socket.id]);
     if (!room) return;
-    if (!rooms[room]) return;
+    if (!liveRooms[room]) return;
     var timestamp = getTimestamp();
-    console.log(room, message, timestamp);
-    socket.broadcast.to(room).emit("chat_message", user.name, message, timestamp);
-    socket.emit("chat_message", user.name, message, timestamp);
-    rooms[room].history.push({
-      timestamp: getTimestamp(),
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
       event_type: "chat_message",
       data: { 
         user: user,
         message: message
       }
     });
-    //TODO: データ保存
+    socket.broadcast.to(room).emit("chat_message", user.name, message);
+    socket.emit("chat_message", user.name, message);
   });
 
-  socket.on("drive", function(room, startLocation) {
-    console.log("drive:", room, socket.id);
-    if (!room) return;
-    if (!rooms[room]) {
-      var timestamp = getTimestamp();
-      var data = {
-        is_finished: false,
-        history: [],
-        start_time: getTimestamp(),
-        position: startLocation,
-        driver: user,
-        party: [],
-        viewer: 0,
-        pov: {heading: 0, pitch: 0}
-      };
-      rooms[room] = data;
-    }
-    socket.join(room);
-    rooms[room].history.push({
-      timestamp: getTimestamp(),
-      event_type: "party_changed",
-      data: { 
-        user: user
-      }
-    });
-    socket.emit("party_changed", rooms[room].driver, rooms[room].party);
-    console.log(rooms[room]);
-  });
-
+  // 観覧者がやってきたときの処理
   socket.on("view", function(room) {
     if (!room) return;
-    if (!rooms[room]) return;
-    console.log("view:", room, socket.id);
-    rooms[room].viewer++;
-    socket.join(room);
-    socket.emit("party_changed", rooms[room].driver, rooms[room].party);
-  });
-
-  socket.on("join", function(room) {
-    if (!room) return;
-    if (!rooms[room]) return;
-    console.log("join:", room, socket.id);
-    var array = rooms[room].party.filter(function(v) {
-      return (v.name !== user.name);
-    });
-    rooms[room].party = array;
-    rooms[room].party.push(user);
-    rooms[room].history.push({
-      timestamp: getTimestamp(),
-      event_type: "join",
-      data: { 
-        user: user
+    if (!liveRooms[room]) return;
+    var timestamp = getTimestamp();
+    liveRooms[room].viewer++;
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
+      event_type: "viewer_changed",
+      data: {
+        num: liveRooms[room].viewer
       }
     });
     socket.join(room);
-    socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-    socket.emit("party_changed", rooms[room].driver, rooms[room].party);
+    socket.broadcast.to(room).emit("viewer_changed", liveRooms[room].viewer);
+    socket.emit("viewer_changed", liveRooms[room].viewer);
+    socket.emit("party_changed", liveRooms[room].driver, liveRooms[room].party);
   });
 
+  // 観覧者が同乗者になったときの処理
+  socket.on("join", function(room) {
+    if (!room) return;
+    if (!liveRooms[room]) return;
+    var timestamp = getTimestamp();
+    var array = liveRooms[room].party.filter(function(v) {
+      return (v.name !== user.name);
+    });
+    liveRooms[room].party = array;
+    liveRooms[room].party.push(user);
+    liveRooms[room].timestamp_history.push(timestamp);
+    liveRooms[room].history.push({
+      timestamp: timestamp,
+      event_type: "join",
+      data: { 
+        user: user,
+        party: array
+      }
+    });
+    socket.join(room);
+    socket.broadcast.to(room).emit("party_changed", liveRooms[room].driver, liveRooms[room].party);
+    socket.emit("party_changed", liveRooms[room].driver, liveRooms[room].party);
+  });
+
+  // ドライバーがタイムアウトしたときの処理
+  socket.on("timeout", function() {
+    socket.disconnect();
+  });
+
+  // 切断したときの処理
   socket.on("disconnect", function() {
+    var timestamp = getTimestamp();
     for(var room in io.sockets.manager.roomClients[socket.id]){
       room = room.slice(1); //roomClientsに入ってるroomは"/"から始まる
       socket.leave(room);
-      if (user && rooms[room]) {
-        var array = rooms[room].party.filter(function(v) {
+      if (user && liveRooms[room]) {
+        // Twitter認証済みのユーザが抜けた場合
+        var array = liveRooms[room].party.filter(function(v) {
           return (v.name !== user.name);
         });
-        rooms[room].is_finished = user == rooms[room].driver ? true: false;
-        rooms[room].party = array;
-        rooms[room].history.push({
-          timestamp: getTimestamp(),
+        liveRooms[room].party = array;
+        liveRooms[room].timestamp_history.push(timestamp);
+        liveRooms[room].history.push({
+          timestamp: timestamp,
           event_type: "disconnected",
-          data: { 
-            user: user
+          data: {
+            user: user,
+            party: array
           }
         });
 
-        socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-
-        if (rooms[room].driver.name == user.name) {
-          rooms[room].driver = null;
-          socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-          delete rooms[room];
+        if(user.name == liveRooms[room].driver.name) {
+          console.log("finished");
+          // ドライバーが抜けた場合、そのセッションは終了
+          liveRooms[room].position = liveRooms[room].start_position;
+          liveRooms[room].pov = liveRooms[room].start_pov;
+          liveRooms[room].history.push({
+            timestamp: timestamp,
+            event_type: "finished"
+          });
+          liveRooms[room].is_finished = true;
+          socket.broadcast.to(room).emit("finished");
+          timeshiftRooms[room] = liveRooms[room];
+          delete liveRooms[room];
+        } else {
+          // 同乗者が抜けたことを通知
+          socket.broadcast.to(room).emit("party_changed", liveRooms[room].driver, liveRooms[room].party);
+        }
+      } else {
+        if (liveRooms[room]) {
+          // 観覧者が抜けた場合
+          liveRooms[room].viewer--;
+          socket.broadcast.to(room).emit("viewer_changed", liveRooms[room].viewer);
         }
       }
-      //TODO: 特定ルームに入っている場合、退室メッセージを流す？
       console.log(socket.id + " disconnected from " + room);
     }
   });
 
   socket.on("get_rooms", function() {
     var data = {};
-    for (var id in rooms) {
-      var room = rooms[id];
-      if (!room.finished) {
-        var element = {
-          position: room.position,
-          pov: room.pov
-        }
-        data[id] = element;
+    for (var id in liveRooms) {
+      var room = liveRooms[id];
+      var element = {
+        position: room.position,
+        pov: room.pov
       }
+      data[id] = element;
     }
     socket.emit("push_rooms", data);
   });
 
   socket.on("request_history_list", function(room) {
-    if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
-    var history_timestamp_array = [];
-    for(var hisotry_data in rooms[room].history[history_num]) {
-      history_timestamp_array.push(hisotry_data.timestamp);
-    }
-    socket.emit("history_timestamp", rooms[room].start_time, history_timestamp_array);
+    if(!timeshiftRooms[room]) return;
+    socket.emit("history_timestamp", timeshiftRooms[room].start_time, timeshiftRooms[room].timestamp_history);
   });
 
   socket.on("request_history", function(room, history_num) {
-    room = room.slice(1); //roomClientsに入ってるroomは"/"から始まる
-    if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
-    hisotry_data = rooms[room].history[history_num];
-    switch (history_data.event_type) {
-      case "moved":
-        socket.emit("moved", history_data.data.position, history_data.timestamp);
-        break;
-      case "view_changed":
-        socket.emit("view_changed", history_data.data.pov, history_data.timestamp);
-        break;
-      case "chat_message":
-        socket.emit("chat_message", history_data.data.user.name, history_data.data.message, history_data.timestamp);
-        break;
-      case "party_changed":
-      case "join":
-      case "disconnected":
-        socket.emit("party_changed", history_data.driver, history_data.party);
-        break;
+    if(!timeshiftRooms[room] || !timeshiftRooms[room].history[history_num]) return;
+    var history_data = timeshiftRooms[room].history[history_num];
+    console.log(history_data.event_type, "EVENT_TYPE");
+    if(history_data.event_type === "moved") {
+      socket.emit("moved", history_data.data.position);
+    } else if (history_data.event_type === "view_changed") {
+      socket.emit("view_changed", history_data.data.pov);
+    } else if (history_data.event_type === "chat_message") {
+      socket.emit("chat_message", history_data.data.user.name, history_data.data.message);
+    } else if (history_data.event_type === "finished") {
+      socket.emit("finished");
+    } else if (history_data.event_type === "viewer_changed") {
+      socket.emit("viewer_changed", history_data.data.num);
+    } else {
+      //case "party_changed":
+      //case "join":
+      //case "disconnected":
+        socket.emit("party_changed", history_data.data.user, history_data.data.party);
     }
   });
 });

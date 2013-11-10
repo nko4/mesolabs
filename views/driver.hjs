@@ -20,15 +20,15 @@
 
       geocoder.geocode(request, function (results, status) {
         if (status != google.maps.GeocoderStatus.OK) {
-          //TODO: $("#caution")にエラーメッセージを表示する
-          alert("Cannot find the entered location.");
+          $("#caution").empty();
+          $("#caution").append("<span>Cannot find the entered location.</span>");
+          $("#caution").show();
           return console.log("Geocode failed for the following reason: " + status);
         }
         var startLatlng = results[0].geometry.location;
 
         var service = new google.maps.StreetViewService();
         service.getPanoramaByLocation(startLatlng, 50, function(data, status) {
-          console.log(data, status);
           var map = createMap(startLatlng);
           var pov = {heading: 0, pitch: 0};
           var panorama = createPanorama(startLatlng, pov, true);
@@ -40,8 +40,13 @@
 
           initialClick(map);
           if (status !== google.maps.StreetViewStatus.OK) {
-            //TODO: $("#caution")にエラーメッセージを表示する
-            alert("Please DRUG & DROP yellow man on the Right-Bottom map.");
+            $("#caution").empty();
+            $("#caution").append("<span>Please DRUG & DROP yellow man on the Right-Bottom map.</span>");
+            $("#caution").show(0, function() {
+              setTimeout(function() {
+                $("#caution").hide(2000);
+              }, 5000);
+            });
           }
         });
       });
@@ -50,20 +55,21 @@
 
     var idleTimer;
     ifvisible.on("idle", function() {
-      var counter = 10;
+      var counter = 30;
       idleTimer = setInterval(function(){
         if(counter < 0) {
+          connection.socket.emit("timeout");
           location.href = "/auth/logout";
         }
         counter--;
-        console.log("away from table, prease move in " + counter + "seconds.");
-        //TODO: 表示
+        $("#caution").empty();
+        $("#caution").append("<span>You're away. Please move in " + counter + " seconds.</span>");
+        $("#caution").show();
       }, 1000)
     });
     ifvisible.on("wakeup", function() {
       if(idleTimer){
-        //TODO: 表示
-        console.log("well come back");
+        $("#caution").hide(2000);
         clearInterval(idleTimer);
       }
     });
@@ -80,5 +86,6 @@
   <form onsubmit="sendChat(); return false;">
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>
+  <div id="count"></div>
 </body>
 </html>

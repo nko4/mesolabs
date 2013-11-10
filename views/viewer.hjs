@@ -52,5 +52,6 @@
   <div id="join-area">
     <a id="join" href="#"><img src="/images/sign-in-with-twitter-gray.png" /></a>
   </div>
+  <div id="count"></div>
 </body>
 </html>

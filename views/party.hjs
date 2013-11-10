@@ -52,5 +52,6 @@
   <form onsubmit="sendChat(); return false;">
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>
+  <div id="count"></div>
 </body>
 </html>
