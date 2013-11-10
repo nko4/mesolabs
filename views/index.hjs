@@ -4,6 +4,7 @@
     <title>{{ title }}</title>
     <link rel='stylesheet' href='/stylesheets/index.css' />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
   </head>
   <body>
     <div id="wrapper">
