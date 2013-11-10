@@ -48,7 +48,6 @@
           "opacity" : "0",
           "min-width" : "0"
         }, 1000, function(){
-          $("#ws-toggle-btn").html("&gt");
           $("#ws-left-column").css({
             "overflow" : "visible"
           }).animate({
@@ -88,9 +87,7 @@
               $(div).click(function(n) {
                 return function() {
                   $("#ws-wrapper").fadeTo(800, 0.05, function() {
-                    $("#ws-wrapper").attr("src", "/" + n).load(function() {
-                      $("#ws-wrapper").fadeTo(800, 1);
-                    });
+                    location.href = "/" + n;
                   });
                   return false;
                 };
@@ -116,9 +113,7 @@
               $(div).click(function(n) {
                 return function() {
                   $("#ws-wrapper").fadeTo(800, 0.05, function() {
-                    $("#ws-wrapper").attr("src", "/" + n).load(function() {
-                      $("#ws-wrapper").fadeTo(800, 1);
-                    });
+                    location.href = "/" + n;
                   });
                   return false;
                 };
@@ -141,7 +136,6 @@
     <div id="ws-header"></div>
       <div id="ws-container">
         <div id="ws-left-column">
-          <div id="ws-toggle-btn">&lt</div>
           <div id="ws-left-column-container">
             <h1 id="ws-title">{{ title }}</h1>
             <form action="/new" method="post">
@@ -204,7 +198,6 @@
         owlLive.prev();
         owlTimeshift.next();
         owlTimeshift.prev();
-        $("#ws-toggle-btn").click(toggleButtonClickHandler);
         $("input[type='submit']").mouseover(function(){
             $(this).css({
                 "box-shadow" : "1px 1px 3px #eee8aa, 1px -1px 3px #eee8aa, -1px 1px 3px #eee8aa, -1px -1px 3px #eee8aa"
@@ -256,86 +249,7 @@
             $("#ws-bottom-column #ws-live").css({
                 "color" : "#FFFFFF"
             });
-        }
-
-
-        function toggleButtonClickHandler(){
-            if($(this).hasClass("close")){
-                //OPEN
-                $(this).removeClass("close");
-                $("#ws-toggle-btn").html("&lt");
-                $("#ws-left-column").css({
-                    "filter" : "alpha(opacity=0)",
-                    "-moz-opacity" : "0",
-                    "opacity" : "0",
-                    "overflow" : "hidden"
-                });
-                $("#ws-left-column-container").css({
-                    "display" : "inline-block"
-                });
-                $("#ws-left-column").animate({
-                    "width" : "20%",
-                    "filter" : "alpha(opacity=100)",
-                    "-moz-opacity" : "1",
-                    "opacity" : "1"
-                }, 500, function(){
-                    $("#ws-left-column").css({
-                        "display" : "inline-block"
-                    });
-                    $("#ws-left-column-container").animate({
-                        "filter" : "alpha(opacity=100)",
-                        "-moz-opacity" : "1",
-                        "opacity" : "1"
-                    }, 300);
-                });
-                $("#ws-bottom-column").css({
-                    "display" : "inline-block"
-                }).animate({
-                    "height" : "130px",
-                    "filter" : "alpha(opacity=100)",
-                    "-moz-opacity" : "1",
-                    "opacity" : "1"
-                }, 500);
-            }else{
-                //CLOSE
-                $(this).addClass("close");
-                $("#ws-left-column-container").animate({
-                    "filter" : "alpha(opacity=0)",
-                    "-moz-opacity" : "0",
-                    "opacity" : "0"
-                }, 100, function(){
-                    $("#ws-left-column-container").css({
-                        "display" : "none"
-                    });
-                });
-                $("#ws-left-column").animate({
-                    "width" : "0",
-                    "filter" : "alpha(opacity=0)",
-                    "-moz-opacity" : "0",
-                    "opacity" : "0",
-                    "min-width" : "0"
-                }, 1000, function(){
-                    $("#ws-toggle-btn").html("&gt");
-                    $("#ws-left-column").css({
-                        "overflow" : "visible"
-                    }).animate({
-                        "filter" : "alpha(opacity=1)",
-                        "-moz-opacity" : "1",
-                        "opacity" : "1"
-                    }, 1000);
-                });
-                $("#ws-bottom-column").animate({
-                    "height" : "0",
-                    "filter" : "alpha(opacity=0)",
-                    "-moz-opacity" : "0",
-                    "opacity" : "0"
-                }, 1000, function(){
-                    $("#ws-bottom-column").css({
-                        "display" : "none"
-                    });
-                });
-            }
-        }
+        }1
     });
   </script>
   </body>
