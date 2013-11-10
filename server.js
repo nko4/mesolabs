@@ -80,6 +80,8 @@ io.set('authorization', function(handshakeData, callback) {
 io.sockets.on("connection", function(socket) {
   var session = socket.handshake.session;
   var user = session.passport.user;
+  if(user && user.oauth_token)  delete user.oauth_token;
+  if(user && user.oauth_token_secret) delete user.oauth_token_secret;
   console.log("user:", user);
 
   socket.on("moved", function(room, position) {

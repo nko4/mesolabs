@@ -31,7 +31,7 @@ passport.deserializeUser(function (id, done) {
   done(null, id);
 });
 
-exports.tweet = function(req, res) {
+exports.tweet = function (req, res) {
   ts._oauth.post(
       'https://api.twitter.com/1.1/statuses/update.json',
       req.session.passport.user.oauth_token,

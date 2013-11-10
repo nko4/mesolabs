@@ -112,7 +112,6 @@ html, body, #streetview-canvas {
     background: transparent;
     resize:none;
 }
-
 #tweet-input:focus {
     outline: deepskyblue solid 1px ;
 }
