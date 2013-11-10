@@ -168,7 +168,7 @@ io.sockets.on("connection", function(socket) {
         if (rooms[room].driver.name == user.name) {
           rooms[room].driver = null;
           socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-          rooms[room] = null;
+          delete rooms[room];
         }
       }
       //TODO: 特定ルームに入っている場合、退室メッセージを流す？
@@ -177,7 +177,18 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("get_rooms", function() {
-    socket.emit("push_rooms", rooms);
+    var data = {};
+    for (var id in rooms) {
+      var room = rooms[id];
+      if (!room.finished) {
+        var element = {
+          position: room.position,
+          pov: room.pov
+        }
+        data[id] = element;
+      }
+    }
+    socket.emit("push_rooms", data);
   });
 });
 

@@ -32,7 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
   status = "active";
 
-  idleTime = 60000;
+  idleTime = 5 * 60 * 1000;
 
   idleStartedTime = false;
 
