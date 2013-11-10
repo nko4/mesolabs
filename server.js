@@ -288,7 +288,7 @@ io.sockets.on("connection", function(socket) {
       liveData[id] = element;
     }
     var timeshiftData = {};
-    timeshiftRecords.forEach(function(room) {
+    timeshiftRecords.forEach(function(id, room) {
       var element = {
         position: room.position,
         pov: room.pov

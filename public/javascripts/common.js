@@ -14,7 +14,7 @@ function createPanorama(latlng, pov, linkControl) {
       position: google.maps.ControlPosition.TOP_RIGHT
     },
     linksControl: linkControl,
-    panControl: true,
+    panControl: false,
     zoomControl: false,
     enableCloseButton: false,
     clickToGo: false,

@@ -3,17 +3,21 @@
   <head>
     <title>{{ title }}</title>
     <link rel='stylesheet' href='/stylesheets/index.css' />
+    <link rel='stylesheet' href='/stylesheets/owl.carousel.css' />
+    <link rel='stylesheet' href='/stylesheets/owl.theme.css' />
+    <link href='http://fonts.googleapis.com/css?family=Snippet|Codystar|Monofett|Share+Tech+Mono|Ribeye+Marrow|Voltaire' rel='stylesheet' type='text/css'>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/javascripts/comment.js"></script>
+    <script src="/javascripts/owl.carousel.js"></script>
     <script>
-      function createThumbnailPanorama(latlng, pov, linkControl, div) {
+      function createThumbnailPanorama(latlng, pov, div) {
         var panoOptions = {
           position: latlng,
           addressControl: false,
-          linksControl: linkControl,
+          linksControl: false,
           panControl: false,
           zoomControl: false,
           enableCloseButton: false,
@@ -31,14 +35,15 @@
         connection.socket = io.connect();
         connection.socket.on("push_liveRooms", function(rooms) {
           if (rooms) {
-            var max = $(".thumb").length;
+            var max = $("#list-live > .thumb").length;
             var i = 0;
             for (var id in rooms) {
               var room = rooms[id];
-              var div = $(".thumb")[i];
+              console.log("live", id, room);
+              var div = $("#list-live > .thumb")[i];
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
-              var panorama = createThumbnailPanorama(startLatlng, pov, false, div);
+              var panorama = createThumbnailPanorama(startLatlng, pov, div);
               $(div).click(function(n) {
                 return function() {
                   $("#wrapper").fadeTo(800, 0.05, function() {
@@ -49,14 +54,37 @@
                   return false;
                 };
               }(id));
-              console.log(div);
               i++;
               if (i >= max) break;
             }
           }
         });
         connection.socket.on("push_timeshiftRooms", function(rooms) {
-
+          if (rooms) {
+            var max = $("#list-time-shift > .thumb").length;
+            console.log("max", max);
+            var i = 0;
+            for (var id in rooms) {
+              var room = rooms[id];
+              console.log("timeshift", id, room);
+              var div = $("#list-time-shift > .thumb")[i];
+              var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
+              var pov = room.pov;
+              var panorama = createThumbnailPanorama(startLatlng, pov, div);
+              $(div).click(function(n) {
+                return function() {
+                  $("#wrapper").fadeTo(800, 0.05, function() {
+                    $("#wrapper").attr("src", "/" + n).load(function() {
+                      $("#wrapper").fadeTo(800, 1);
+                    });
+                  });
+                  return false;
+                };
+              }(id));
+              i++;
+              if (i >= max) break;
+            }
+          }
         });
         connection.socket.emit("get_rooms");
       }
@@ -71,57 +99,132 @@
     <div id="header"></div>
       <div id="container">
         <div id="left-column">
-        <div id="toggle-btn">&lt</div>
+          <div id="toggle-btn">&lt</div>
           <div id="left-column-container">
             <h1 id="title">{{ title }}</h1>
             <form action="/new" method="post">
               <input type="text" name="place" placeholder="Enter start place" />
               <input type="submit" value="START your walk" />
             </form>
-            <p id="description">
-              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            </p>
-            <iframe src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
+            <iframe id="rank-btn" src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
           </div>
         </div>
         <div id="bottom-column">
           <div id="menu">
             <div id="menu-container">
-              <p id="now">&gt NOW</p>
-              <p id="past">&gt PAST</p>
+              <p id="live">&gt Live</p>
+              <p id="time-shift">&gt Time-Shift</p>
             </div>
           </div>
-          <div id="list">
-            <ul>
-              <li>
-                <div class="thumb"></div>
-              </li>  
-              <li>
-                <div class="thumb"></div>
-              </li>  
-              <li>
-                <div class="thumb"></div>
-              </li>  
-              <li>
-                <div class="thumb"></div>
-              </li>  
-            </ul>
+          <div id="list-wrap">
+            <div id="list-live" class="owl-carousel">
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+            </div>
+            <div id="list-time-shift" class="owl-carousel">
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+              <div class="thumb"></div>
+            </div>
           </div>
         </div>
       </div>
       <div id="footer"></div>
   <script type="text/javascript">
     $(document).ready(function(){
+        $("#list-live").owlCarousel({
+            "pagination" : false,
+            "navigation" : true,
+            "navigationText" : ["<", ">"]
+        });
+        $("#list-time-shift").owlCarousel({
+            "pagination" : false,
+            "navigation" : true,
+            "navigationText" : ["<", ">"]
+        });
+        $("#live").click(liveButtonClickHandler);
+        $("#time-shift").click(timeShiftButtonClickHandler);
+        var owlLive = $("#list-live").data('owlCarousel');
+        var owlTimeshift = $("#list-time-shift").data('owlCarousel');
+        owlLive.next();
+        owlLive.prev();
+        owlTimeshift.next();
+        owlTimeshift.prev();
         $("#toggle-btn").click(toggleButtonClickHandler);
+        $("input[type='submit']").mouseover(function(){
+            $(this).css({
+                "box-shadow" : "1px 1px 3px #eee8aa, 1px -1px 3px #eee8aa, -1px 1px 3px #eee8aa, -1px -1px 3px #eee8aa"
+            });
+        });
+        $("input[type='submit']").mouseout(function(){
+            $(this).css({
+                "box-shadow" : "none"
+            });
+        });
+        $("#bottom-column #live, #bottom-column #time-shift").mouseover(function(){
+            $(this).css({
+                "text-shadow" : "1px 1px 3px #eee8aa, 1px -1px 3px #eee8aa, -1px 1px 3px #eee8aa, -1px -1px 3px #eee8aa"
+            });
+        });
+        $("#bottom-column #live, #bottom-column #time-shift").mouseout(function(){
+            $(this).css({
+                "text-shadow" : "none"
+            });
+        });        
+
+        function liveButtonClickHandler(){
+            console.log("live");
+            $("#list-live").css({
+                "display" : "block"
+            });
+            $("#list-time-shift").css({
+                "display" : "none"
+            });
+            $("#bottom-column #live").css({
+                "color" : "#FFB400"
+            });
+            $("#bottom-column #time-shift").css({
+                "color" : "#FFFFFF"
+            });
+        }
+
+        function timeShiftButtonClickHandler(){
+            console.log("time-shift");
+            $("#list-live").css({
+                "display" : "none"
+            });
+            $("#list-time-shift").css({
+                "display" : "block"
+            });
+            $("#bottom-column #time-shift").css({
+                "color" : "#FFB400"
+            });
+            $("#bottom-column #live").css({
+                "color" : "#FFFFFF"
+            });
+        }
 
         function toggleButtonClickHandler(){
             if($(this).hasClass("close")){
+                //OPEN
                 $(this).removeClass("close");
                 $("#toggle-btn").html("&lt");
                 $("#left-column").css({
                     "filter" : "alpha(opacity=0)",
                     "-moz-opacity" : "0",
-                    "opacity" : "0"
+                    "opacity" : "0",
+                    "overflow" : "hidden"
                 });
                 $("#left-column-container").css({
                     "display" : "inline-block"
@@ -131,23 +234,60 @@
                     "filter" : "alpha(opacity=100)",
                     "-moz-opacity" : "1",
                     "opacity" : "1"
-                }, 1000);
+                }, 500, function(){
+                    $("#left-column").css({
+                        "display" : "inline-block"
+                    });
+                    $("#left-column-container").animate({
+                        "filter" : "alpha(opacity=100)",
+                        "-moz-opacity" : "1",
+                        "opacity" : "1"
+                    }, 300);
+                });
+                $("#bottom-column").css({
+                    "display" : "inline-block"
+                }).animate({
+                    "height" : "130px",
+                    "filter" : "alpha(opacity=100)",
+                    "-moz-opacity" : "1",
+                    "opacity" : "1"
+                }, 500);
             }else{
+                //CLOSE
                 $(this).addClass("close");
+                $("#left-column-container").animate({
+                    "filter" : "alpha(opacity=0)",
+                    "-moz-opacity" : "0",
+                    "opacity" : "0"
+                }, 100, function(){
+                    $("#left-column-container").css({
+                        "display" : "none"
+                    });
+                });
                 $("#left-column").animate({
                     "width" : "0",
                     "filter" : "alpha(opacity=0)",
                     "-moz-opacity" : "0",
-                    "opacity" : "0"
+                    "opacity" : "0",
+                    "min-width" : "0"
                 }, 1000, function(){
                     $("#toggle-btn").html("&gt");
-                    $("#left-column-container").css({
-                        "display" : "none"
-                    });
-                    $("#left-column").animate({
+                    $("#left-column").css({
+                        "overflow" : "visible"
+                    }).animate({
                         "filter" : "alpha(opacity=1)",
                         "-moz-opacity" : "1",
                         "opacity" : "1"
+                    }, 1000);
+                });
+                $("#bottom-column").animate({
+                    "height" : "0",
+                    "filter" : "alpha(opacity=0)",
+                    "-moz-opacity" : "0",
+                    "opacity" : "0"
+                }, 1000, function(){
+                    $("#bottom-column").css({
+                        "display" : "none"
                     });
                 });
             }
