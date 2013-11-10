@@ -144,8 +144,8 @@
     </style>
   </head>
   <body>
-    <iframe id="ws-wrapper">
-    </iframe>
+    <div id="ws-wrapper">
+    </div>
 
     <div id="ws-header"></div>
       <div id="ws-container">
