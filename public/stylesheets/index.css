@@ -64,7 +64,9 @@ a {
   height: 100%;
   color: RGBa(255,255,255,1);
   background-color: RGBa(0,0,0,0.5);
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #left-column #toggle-btn {

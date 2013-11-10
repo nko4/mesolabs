@@ -169,6 +169,10 @@ io.sockets.on("connection", function(socket) {
       console.log(socket.id + " disconnected from " + room);
     }
   });
+
+  socket.on("get_rooms", function() {
+    socket.emit("push_rooms", rooms);
+  });
 });
 
 var getTimestamp = function() {
