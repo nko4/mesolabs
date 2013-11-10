@@ -89,6 +89,14 @@ io.sockets.on("connection", function(socket) {
     rooms[room].position = position;
     socket.broadcast.to(room).emit("moved", position, timestamp);
     // TODO: データ保存
+    rooms[room].history.push({
+      timestamp: getTimestamp(),
+      event_type: "moved",
+      data: { 
+        user: user,
+        position: position
+      }
+    });
   });
   
   socket.on("view_changed", function(room, pov) {
@@ -99,6 +107,14 @@ io.sockets.on("connection", function(socket) {
     rooms[room].pov = pov;
     socket.broadcast.to(room).emit("view_changed", pov, timestamp);
     // TODO: データ保存
+    rooms[room].history.push({
+      timestamp: getTimestamp(),
+      event_type: "view_changed",
+      data: { 
+        user: user,
+        pov: pov
+      }
+    });
   });
 
   socket.on("chat_message", function(room, message) {
@@ -109,6 +125,14 @@ io.sockets.on("connection", function(socket) {
     console.log(room, message, timestamp);
     socket.broadcast.to(room).emit("chat_message", user.name, message, timestamp);
     socket.emit("chat_message", user.name, message, timestamp);
+    rooms[room].history.push({
+      timestamp: getTimestamp(),
+      event_type: "chat_message",
+      data: { 
+        user: user,
+        message: message
+      }
+    });
     //TODO: データ保存
   });
 
@@ -118,6 +142,9 @@ io.sockets.on("connection", function(socket) {
     if (!rooms[room]) {
       var timestamp = getTimestamp();
       var data = {
+        is_finished: false,
+        history: [],
+        start_time: getTimestamp(),
         position: startLocation,
         driver: user,
         party: [],
@@ -127,6 +154,13 @@ io.sockets.on("connection", function(socket) {
       rooms[room] = data;
     }
     socket.join(room);
+    rooms[room].history.push({
+      timestamp: getTimestamp(),
+      event_type: "party_changed",
+      data: { 
+        user: user
+      }
+    });
     socket.emit("party_changed", rooms[room].driver, rooms[room].party);
     console.log(rooms[room]);
   });
@@ -149,6 +183,13 @@ io.sockets.on("connection", function(socket) {
     });
     rooms[room].party = array;
     rooms[room].party.push(user);
+    rooms[room].history.push({
+      timestamp: getTimestamp(),
+      event_type: "join",
+      data: { 
+        user: user
+      }
+    });
     socket.join(room);
     socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
     socket.emit("party_changed", rooms[room].driver, rooms[room].party);
@@ -162,7 +203,16 @@ io.sockets.on("connection", function(socket) {
         var array = rooms[room].party.filter(function(v) {
           return (v.name !== user.name);
         });
+        rooms[room].is_finished = user == rooms[room].driver ? true: false;
         rooms[room].party = array;
+        rooms[room].history.push({
+          timestamp: getTimestamp(),
+          event_type: "disconnected",
+          data: { 
+            user: user
+          }
+        });
+
         socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
 
         if (rooms[room].driver.name == user.name) {
@@ -178,6 +228,37 @@ io.sockets.on("connection", function(socket) {
 
   socket.on("get_rooms", function() {
     socket.emit("push_rooms", rooms);
+  });
+
+  socket.on("request_history_list", function(room) {
+    if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
+    var history_timestamp_array = [];
+    for(var hisotry_data in rooms[room].history[history_num]) {
+      history_timestamp_array.push(hisotry_data.timestamp);
+    }
+    socket.emit("history_timestamp", rooms[room].start_time, history_timestamp_array);
+  });
+
+  socket.on("request_history", function(room, history_num) {
+    room = room.slice(1); //roomClientsに入ってるroomは"/"から始まる
+    if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
+    hisotry_data = rooms[room].history[history_num];
+    switch (history_data.event_type) {
+      case "moved":
+        socket.emit("moved", history_data.data.position, history_data.timestamp);
+        break;
+      case "view_changed":
+        socket.emit("view_changed", history_data.data.pov, history_data.timestamp);
+        break;
+      case "chat_message":
+        socket.emit("chat_message", history_data.data.user.name, history_data.data.message, history_data.timestamp);
+        break;
+      case "party_changed":
+      case "join":
+      case "disconnected":
+        socket.emit("party_changed", history_data.driver, history_data.party);
+        break;
+    }
   });
 });
 
