@@ -30,20 +30,61 @@
         return new google.maps.StreetViewPanorama(div, panoOptions);
       }
 
+      function thumbButtonClickHandler(){
+        $(this).addClass("close");
+        $("#ws-left-column-container").animate({
+          "filter" : "alpha(opacity=0)",
+          "-moz-opacity" : "0",
+          "opacity" : "0"
+        }, 100, function(){
+          $("#ws-left-column-container").css({
+            "display" : "none"
+          });
+        });
+        $("#ws-left-column").animate({
+          "width" : "0",
+          "filter" : "alpha(opacity=0)",
+          "-moz-opacity" : "0",
+          "opacity" : "0",
+          "min-width" : "0"
+        }, 1000, function(){
+          $("#ws-toggle-btn").html("&gt");
+          $("#ws-left-column").css({
+            "overflow" : "visible"
+          }).animate({
+                "filter" : "alpha(opacity=1)",
+                "-moz-opacity" : "1",
+                "opacity" : "1"
+              }, 1000);
+        });
+        $("#ws-bottom-column").animate({
+          "height" : "0",
+          "filter" : "alpha(opacity=0)",
+          "-moz-opacity" : "0",
+          "opacity" : "0"
+        }, 1000, function(){
+          $("#ws-bottom-column").css({
+            "display" : "none"
+          });
+        });
+      }
+
       function initialize() {
         var connection ={};
         connection.socket = io.connect();
         connection.socket.on("push_liveRooms", function(rooms) {
           if (rooms) {
-            var max = $("#list-live > .thumb").length;
+            var max = $("#ws-list-live .thumb").length;
             var i = 0;
             for (var id in rooms) {
               var room = rooms[id];
               console.log("live", id, room);
-              var div = $("#list-live > .thumb")[i];
+              var div = $("#ws-list-live .thumb")[i];
+              console.log(div);
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
               var panorama = createThumbnailPanorama(startLatlng, pov, div);
+              $(div).click(thumbButtonClickHandler);
               $(div).click(function(n) {
                 return function() {
                   $("#ws-wrapper").fadeTo(800, 0.05, function() {
@@ -61,16 +102,17 @@
         });
         connection.socket.on("push_timeshiftRooms", function(rooms) {
           if (rooms) {
-            var max = $("#list-time-shift > .thumb").length;
-            console.log("max", max);
+            var max = $("#ws-list-time-shift .thumb").length;
             var i = 0;
             for (var id in rooms) {
               var room = rooms[id];
               console.log("timeshift", id, room);
-              var div = $("#list-time-shift > .thumb")[i];
+              var div = $("#ws-list-time-shift .thumb")[i];
+              console.log(div);
               var startLatlng = new google.maps.LatLng(room.position.nb, room.position.ob);
               var pov = room.pov;
               var panorama = createThumbnailPanorama(startLatlng, pov, div);
+              $(div).click(thumbButtonClickHandler);
               $(div).click(function(n) {
                 return function() {
                   $("#ws-wrapper").fadeTo(800, 0.05, function() {
@@ -155,7 +197,7 @@
         });
         $("#ws-live").click(liveButtonClickHandler);
         $("#ws-time-shift").click(timeShiftButtonClickHandler);
-        $(".owl-item").click(thumbButtonClickHandler);
+//        $(".owl-item").click(thumbButtonClickHandler);
         var owlLive = $("#ws-list-live").data('owlCarousel');
         var owlTimeshift = $("#ws-list-time-shift").data('owlCarousel');
         owlLive.next();
@@ -216,44 +258,6 @@
             });
         }
 
-        function thumbButtonClickHandler(){
-            $(this).addClass("close");
-            $("#ws-left-column-container").animate({
-                "filter" : "alpha(opacity=0)",
-                "-moz-opacity" : "0",
-                "opacity" : "0"
-            }, 100, function(){
-                $("#ws-left-column-container").css({
-                    "display" : "none"
-                });
-            });
-            $("#ws-left-column").animate({
-                "width" : "0",
-                "filter" : "alpha(opacity=0)",
-                "-moz-opacity" : "0",
-                "opacity" : "0",
-                "min-width" : "0"
-            }, 1000, function(){
-                $("#ws-toggle-btn").html("&gt");
-                $("#ws-left-column").css({
-                    "overflow" : "visible"
-                }).animate({
-                    "filter" : "alpha(opacity=1)",
-                    "-moz-opacity" : "1",
-                    "opacity" : "1"
-                }, 1000);
-            });
-            $("#ws-bottom-column").animate({
-                "height" : "0",
-                "filter" : "alpha(opacity=0)",
-                "-moz-opacity" : "0",
-                "opacity" : "0"
-            }, 1000, function(){
-                $("#ws-bottom-column").css({
-                    "display" : "none"
-                });
-            });
-        }
 
         function toggleButtonClickHandler(){
             if($(this).hasClass("close")){
