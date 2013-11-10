@@ -6,7 +6,7 @@ var crypto = require('crypto');
 
 exports.index = function(req, res){
   req.session = null;
-  res.render('index', { title: 'Walk-Sharing' });
+  res.render('index', { title: 'Walk Sharing' });
 };
 
 exports.new = function(req, res) {
