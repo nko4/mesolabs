@@ -79,6 +79,7 @@
 </head>
 <body>
   <div id="caution"></div>
+  <div id="back-to-top"><a href="http://mesolabs.2013.nodeknockout.com">Walk Sharing</a></div>
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
   <div id="party-canvas">

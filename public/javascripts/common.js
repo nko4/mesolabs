@@ -98,7 +98,7 @@ connection.socket.on('party_changed', function(driver, party) {
   if (driver) {
     $("#party-member-list").append(
         '<li class="party-member-icon" style="background-image: url(' + driver.icon + ');">' +
-        '<span class="party-member-name">' + driver.name + '</span></li>');
+        '<span class="party-member-name">' + driver.name + '[navigator]</span></li>');
   }
   party.forEach(function(element) {
     $("#party-member-list").append(
