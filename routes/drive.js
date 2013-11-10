@@ -8,7 +8,7 @@ exports.index = function(req, res) {
     } else if (start == "京都" || start.toLowerCase() === "kyoto") {
       start = "京都市役所前";
     }
-
+    req.session.start = null;
     res.render('driver', {
       start: start,
       user: req.session.passport.user,
@@ -22,8 +22,13 @@ exports.index = function(req, res) {
       return;
     }
     if (data.is_finished) {
-      //TODO: タイムシフトモード
-      res.send("in progress");
+      console.log("changed to finished");
+      res.render('timeshift', {
+        nb: data.position.nb,
+        ob: data.position.ob,
+        heading: data.pov.heading,
+        pitch: data.pov.pitch
+      });
       return;
     }
     if (req.session.passport.user) {

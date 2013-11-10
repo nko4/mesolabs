@@ -81,10 +81,10 @@ connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname.sl
 connection.socket = io.connect();
 connection.disconnect = function() {
   connection.socket.emit("part", connection.pathname);
-}
+};
 window.onbeforeunload = function(event){
   connection.disconnect();
-}
+};
 // チャット送信
 connection.sendMessage = function(message) {
   connection.socket.emit('chat_message', connection.pathname, message);
@@ -95,17 +95,17 @@ connection.socket.on('chat_message', function(username, message) {
   createComment(message);
 });
 connection.socket.on('party_changed', function(driver, party) {
-  console.log(driver);
-  console.log(party);
   $("#party-canvas").empty();
   if (driver) {
     $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
   }
-  party.forEach(function(element) {
-    $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
-  });
+  if(party){
+    party.forEach(function(element) {
+      $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
+    });
+  }
   if (!driver) {
-    alert("This walk was finished.");
+    alert("Watch Walking Records.");
     //TODO: $("#caution")にいい感じに通知する
   }
 });

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Walk-Sharing</title>
+  <link rel='stylesheet' href='/stylesheets/main.css' />
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="/javascripts/common.js"></script>
+  <script src="/javascripts/comment.js"></script>
+  <script src="http://nko-analytics.2013.nodeknockout.com/trk.min.js" class="trk-no-ribbon"></script>
+  <script>
+
+    function initialize() {
+      commentCanvasInit();
+      var startLatlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
+      var map = createMap(startLatlng);
+      var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
+      var panorama = createPanorama(startLatlng, pov, false);
+      map.setStreetView(panorama);
+      addPositionChangedListener(panorama, map, false);
+
+      // 位置情報変更受信
+      connection.socket.on('moved', function(position){
+        var latlng = new google.maps.LatLng(position.nb, position.ob);
+        panorama.setPosition(latlng);
+      });
+
+      //視点変更受信
+      connection.socket.on('view_changed', function(pov){
+        panorama.setPov(pov);
+      });
+      
+      connection.socket.on('finished', function(){
+          alert("This walk is finished.");
+      });
+
+      connection.socket.emit("view", connection.pathname);
+
+      connection.socket.emit('request_history_list', connection.pathname);
+      
+      connection.socket.on('history_timestamp', function(start_time, timestamp_array) {
+          var elapsed_time = 0, position = 0;
+          var TimeShiftTimer = setInterval(function(){
+            elapsed_time += 500;
+            for(var number = position; number < timestamp_array.length; number++){
+              if(timestamp_array[number] <= start_time + elapsed_time) {
+                connection.socket.emit('request_history', connection.pathname, number);
+                position++;
+              } else{
+                break;
+              }
+            }
+            if(timestamp_array.length == position + 1) {
+              clearInterval(TimeShiftTimer);
+            }
+          }, 500);
+      });
+
+      initialClick(map);
+
+      $('#join').attr("href", "/join?room=" + connection.pathname);
+
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+  </script>
+</head>
+<body>
+  <div id="map-canvas"></div>
+  <div id="streetview-canvas"></div>
+  <div id="party-canvas"></div>
+  <canvas id="comment-canvas"></canvas>
+  <div id="join-area">
+    <a id="join" href="#"><img src="/images/sign-in-with-twitter-gray.png" /></a>
+  </div>
+</body>
+</html>

@@ -79,42 +79,39 @@ io.set('authorization', function(handshakeData, callback) {
 io.sockets.on("connection", function(socket) {
   var session = socket.handshake.session;
   var user = session.passport.user;
-  console.log("user:", user);
 
   socket.on("moved", function(room, position) {
     if (!room) return;
     if (!rooms[room]) return;
     var timestamp = getTimestamp();
-    console.log("moved:", room, position, timestamp);
     rooms[room].position = position;
-    socket.broadcast.to(room).emit("moved", position, timestamp);
-    // TODO: データ保存
+    rooms[room].timestamp_history.push(timestamp);
     rooms[room].history.push({
-      timestamp: getTimestamp(),
+      timestamp: timestamp,
       event_type: "moved",
       data: { 
         user: user,
         position: position
       }
     });
+    socket.broadcast.to(room).emit("moved", position);
   });
   
   socket.on("view_changed", function(room, pov) {
     if (!room) return;
     if (!rooms[room]) return;
     var timestamp = getTimestamp();
-    console.log("view_changed:", room, pov, timestamp);
     rooms[room].pov = pov;
-    socket.broadcast.to(room).emit("view_changed", pov, timestamp);
-    // TODO: データ保存
+    rooms[room].timestamp_history.push(timestamp);
     rooms[room].history.push({
-      timestamp: getTimestamp(),
+      timestamp: timestamp,
       event_type: "view_changed",
       data: { 
         user: user,
         pov: pov
       }
     });
+    socket.broadcast.to(room).emit("view_changed", pov);
   });
 
   socket.on("chat_message", function(room, message) {
@@ -123,42 +120,47 @@ io.sockets.on("connection", function(socket) {
     if (!rooms[room]) return;
     var timestamp = getTimestamp();
     console.log(room, message, timestamp);
-    socket.broadcast.to(room).emit("chat_message", user.name, message, timestamp);
-    socket.emit("chat_message", user.name, message, timestamp);
+    socket.broadcast.to(room).emit("chat_message", user.name, message);
+    socket.emit("chat_message", user.name, message);
+    rooms[room].timestamp_history.push(timestamp);
     rooms[room].history.push({
-      timestamp: getTimestamp(),
+      timestamp: timestamp,
       event_type: "chat_message",
       data: { 
         user: user,
         message: message
       }
     });
-    //TODO: データ保存
   });
 
   socket.on("drive", function(room, startLocation) {
     console.log("drive:", room, socket.id);
+    var timestamp = getTimestamp();
     if (!room) return;
     if (!rooms[room]) {
-      var timestamp = getTimestamp();
       var data = {
         is_finished: false,
         history: [],
-        start_time: getTimestamp(),
+        timestamp_history:[],
+        start_time: timestamp,
+        start_position: startLocation,
         position: startLocation,
         driver: user,
         party: [],
         viewer: 0,
-        pov: {heading: 0, pitch: 0}
+        pov: {heading: 0, pitch: 0},
+        start_pov: {heading: 0, pitch: 0}
       };
       rooms[room] = data;
     }
     socket.join(room);
+    rooms[room].timestamp_history.push(timestamp);
     rooms[room].history.push({
-      timestamp: getTimestamp(),
+      timestamp: timestamp,
       event_type: "party_changed",
       data: { 
-        user: user
+        user: user,
+        party: rooms[room].party
       }
     });
     socket.emit("party_changed", rooms[room].driver, rooms[room].party);
@@ -177,17 +179,20 @@ io.sockets.on("connection", function(socket) {
   socket.on("join", function(room) {
     if (!room) return;
     if (!rooms[room]) return;
+    var timestamp = getTimestamp();
     console.log("join:", room, socket.id);
     var array = rooms[room].party.filter(function(v) {
       return (v.name !== user.name);
     });
     rooms[room].party = array;
     rooms[room].party.push(user);
+    rooms[room].timestamp_history.push(timestamp);
     rooms[room].history.push({
-      timestamp: getTimestamp(),
+      timestamp: timestamp,
       event_type: "join",
       data: { 
-        user: user
+        user: user,
+        party: array
       }
     });
     socket.join(room);
@@ -196,6 +201,7 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("disconnect", function() {
+    var timestamp = getTimestamp();
     for(var room in io.sockets.manager.roomClients[socket.id]){
       room = room.slice(1); //roomClientsに入ってるroomは"/"から始まる
       socket.leave(room);
@@ -203,22 +209,29 @@ io.sockets.on("connection", function(socket) {
         var array = rooms[room].party.filter(function(v) {
           return (v.name !== user.name);
         });
-        rooms[room].is_finished = user == rooms[room].driver ? true: false;
+        if(user == rooms[room].driver) rooms[room].is_finished = true;
         rooms[room].party = array;
+        rooms[room].timestamp_history.push(timestamp);
         rooms[room].history.push({
-          timestamp: getTimestamp(),
+          timestamp: timestamp,
           event_type: "disconnected",
           data: { 
-            user: user
+            user: user,
+            party: array
           }
         });
+        if(rooms[room].is_finished) {
+          rooms[room].position = rooms[room].start_position;
+          rooms[room].pov = rooms[room].start_pov;
+          rooms[room].history.push({
+            timestamp: timestamp,
+            event_type: "finished",
+          });
+        }
 
-        socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-
-        if (rooms[room].driver.name == user.name) {
+        if (rooms[room].driver  && rooms[room].driver.name == user.name) {
           rooms[room].driver = null;
           socket.broadcast.to(room).emit("party_changed", rooms[room].driver, rooms[room].party);
-          rooms[room] = null;
         }
       }
       //TODO: 特定ルームに入っている場合、退室メッセージを流す？
@@ -231,33 +244,27 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("request_history_list", function(room) {
-    if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
-    var history_timestamp_array = [];
-    for(var hisotry_data in rooms[room].history[history_num]) {
-      history_timestamp_array.push(hisotry_data.timestamp);
-    }
-    socket.emit("history_timestamp", rooms[room].start_time, history_timestamp_array);
+    if(!rooms[room] || !rooms[room].is_finished) return;
+    socket.emit("history_timestamp", rooms[room].start_time, rooms[room].timestamp_history);
   });
 
   socket.on("request_history", function(room, history_num) {
-    room = room.slice(1); //roomClientsに入ってるroomは"/"から始まる
     if(!rooms[room] || !rooms[room].is_finished || !rooms[room].history[history_num]) return;
-    hisotry_data = rooms[room].history[history_num];
-    switch (history_data.event_type) {
-      case "moved":
-        socket.emit("moved", history_data.data.position, history_data.timestamp);
-        break;
-      case "view_changed":
-        socket.emit("view_changed", history_data.data.pov, history_data.timestamp);
-        break;
-      case "chat_message":
-        socket.emit("chat_message", history_data.data.user.name, history_data.data.message, history_data.timestamp);
-        break;
-      case "party_changed":
-      case "join":
-      case "disconnected":
-        socket.emit("party_changed", history_data.driver, history_data.party);
-        break;
+    history_data = rooms[room].history[history_num];
+    console.log(history_data.event_type, "EVENT_TYPE");
+    if(history_data.event_type === "moved") {
+        socket.emit("moved", history_data.data.position);
+    } else if(history_data.event_type === "view_changed") {
+        socket.emit("view_changed", history_data.data.pov);
+    } else if(history_data.event_type === "chat_message") {
+        socket.emit("chat_message", history_data.data.user.name, history_data.data.message);
+    } else if(history_data.event_type === "finished") {
+        socket.emit("finished");
+    } else {
+      //case "party_changed":
+      //case "join":
+      //case "disconnected":
+        socket.emit("party_changed", history_data.data.user, history_data.data.party);
     }
   });
 });
