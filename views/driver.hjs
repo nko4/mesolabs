@@ -32,6 +32,41 @@
 
         connection.socket.emit("drive", connection.pathname, startLatlng);
 
+        $('#custom-tweet-button').click(function () {
+          if ($('#tweet-box').css('display') !== 'none') {
+            $('#tweet-box').animate(
+                {'height': '0px'},
+                200,
+                function () {
+                  $('#tweet-box').css('display', 'none');
+                  $('#tweet-input').css('display', 'none');
+                }
+            );
+          } else {
+            $('#tweet-box').css('display', 'block').animate(
+                {'height': '124px'},
+                500,
+                function () {
+                  $('#tweet-input').css('display', 'block');
+                  $('#tweet-input').val(' - ' + panorama.A.view.description + ' http://mesolabs.2013.nodeknockout.com/' + connection.pathname + ' #walk_sharing');
+                }
+            );
+          }
+        });
+
+        $('#tweet-post').click(function () {
+          $.get('/tweet?lat=' + panorama.position.nb + '&long=' + panorama.position.ob + '&msg=' + encodeURIComponent($('#tweet-input').val()));
+          $('#tweet-input').val('');
+          $('#tweet-box').animate(
+              {'height': '0px'},
+              200,
+              function () {
+                $('#tweet-box').css('display', 'none');
+                $('#tweet-input').css('display', 'none');
+              }
+          );
+        });
+
         initialClick(map);
       });
     }
@@ -68,7 +103,10 @@
   <form onsubmit="sendChat(); return false;">
     <input id="chat-input" type="text" name="chat" placeholder="Input chat message..." autocomplete="off" />
   </form>
-  <a href="https://twitter.com/share" class="twitter-share-button" data-via="Yoshiki6119" data-size="large" data-count="none" data-hashtags="nodeko_tokyo">Tweet</a>
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  <div id="custom-tweet-button"></div>
+  <div id="tweet-box">
+    <textarea id="tweet-input" maxlength="140" placeholder="Input tweet message..." autocomplete="off"  ></textarea>
+    <button id="tweet-post">POST</button>
+  </div>
 </body>
 </html>
