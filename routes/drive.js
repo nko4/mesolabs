@@ -19,6 +19,11 @@ exports.index = function(req, res) {
       res.send("そんなセッションはありません！");
       return;
     }
+    if (data.is_finished) {
+      //TODO: タイムシフトモード
+      res.send("in progress");
+      return;
+    }
     if (req.session.passport.user) {
       res.render('party', {
         nb: data.position.nb,
