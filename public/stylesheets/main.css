@@ -9,31 +9,35 @@ html, body, #streetview-canvas {
     width: 320px;
     position: absolute;
     right: 16px;
-    bottom: 24px;
-    border: 2px solid gray;
+    bottom: 32px;
+    border: 0px solid gray;
     z-index: 999;
 }
 
 #party-canvas {
-    height: 240px;
-    width: 240px;
+    height: 194px;
+    width: 306px;
     position: absolute;
     left: 16px;
     bottom: 64px;
-    border: 2px solid gray;
+    border: 0px solid gray;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
+    padding: 7px;
     color: azure;
 }
 
 #chat-input {
     height: 24px;
-    width: 320px;
+    width: 306px;
     font-size: 100%;
+    font-weight: 200;
     position: absolute;
     left: 16px;
     bottom: 32px;
-    border: 2px solid gray;
+    border: 0px solid gray;
+    padding-left: 7px;
+    padding-right: 7px;
     z-index: 999;
     background-color: rgba(0, 0, 0, 0.5);
     color: azure;
@@ -55,4 +59,83 @@ html, body, #streetview-canvas {
     left: 16px;
     bottom: 32px;
     z-index: 999;
+}
+
+#custom-tweet-button {
+    position: absolute;
+    padding: 0;
+    background: url('https://twitter.com/favicons/favicon.ico') center no-repeat;
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 32px;
+    height: 32px;
+    left: 16px;
+    bottom: 280px;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+}
+#custom-tweet-button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+#custom-tweet-button:active {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+#tweet-box {
+    padding: 7px;
+    padding-right: 7px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9);
+    height: 0px;
+    width: 306px;
+    left: 16px;
+    bottom: 325px;
+    display: none;
+    text-align: right;
+
+}
+#tweet-box:after {
+    content: '';
+    position: absolute;
+    border-top: 10px solid rgba(255, 255, 255, 0.9);;
+    border-right: 10px solid transparent;
+    border-left: 10px solid transparent;
+    bottom: -10px;
+    left: 6px;
+}
+
+#tweet-input {
+    padding: 5px;
+ height:90px;
+ width:294px;
+    border-style: none;
+    background: transparent;
+    resize:none;
+}
+
+#tweet-input:focus {
+    outline: deepskyblue solid 1px ;
+}
+
+#tweet-post{
+    margin-top: 5px;
+    background: deepskyblue;
+    border: none;
+    color: white;
+    right: 0;
+}
+#tweet-post:focus {
+    outline: deepskyblue solid 1px ;
+    background: deepskyblue;
+    opacity: 0.7;
+}
+#tweet-post:hover {
+    outline: deepskyblue solid 1px ;
+    background: deepskyblue;
+    opacity: 0.7;
+}
+#tweet-post:active {
+    outline: deepskyblue solid 1px ;
+    background: transparent;
+    color: deepskyblue;
 }

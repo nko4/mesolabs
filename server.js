@@ -36,6 +36,7 @@ if (!isProduction) {
 app.get('/', routes.index);
 app.post('/new', routes.new);
 app.get('/join', routes.join);
+app.get('/tweet', auth.tweet);
 app.get('/auth/twitter', auth.passport.authenticate('twitter'));
 app.get('/auth/twitter/callback', auth.passport.authenticate('twitter', {failureRedirect: "/", failureFlash: true}), routes.callback);
 app.get('/auth/logout', routes.logout);
