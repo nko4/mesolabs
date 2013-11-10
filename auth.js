@@ -10,10 +10,7 @@ passport.use(new TwitterStrategy({
   },
   function (token, tokenSecret, profile, done) {
     setImmediate(function () {
-      passport.session.user = profile._json.screen_name;
-      passport.session.icon = profile._json.profile_image_url;
-      console.log(1, passport.session);
-      return done(null, profile._json);
+      return done(null, {name: profile.username, icon: profile.photos[0].value});
     });
   }
 ));
@@ -23,7 +20,6 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
-  console.log(2, passport.session);
   done(null, id);
 });
 

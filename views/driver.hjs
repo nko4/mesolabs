@@ -2,180 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Drive Share</title>
-  <style>
-    html, body, #streetview-canvas {
-      height: 100%;
-      margin: 0px;
-      padding: 0px
-    }
-
-    #map-canvas {
-      height: 240px;
-      width: 320px;
-      position: absolute;
-      right: 16px;
-      bottom: 24px;
-      border: 2px solid gray;
-      z-index: 999;
-    }
-
-    #party-canvas {
-      height: 240px;
-      width: 240px;
-      position: absolute;
-      left: 16px;
-      bottom: 64px;
-      border: 2px solid gray;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-      color: azure;
-    }
-
-    #chat-input {
-      height: 24px;
-      width: 320px;
-      font-size: 100%;
-      position: absolute;
-      left: 16px;
-      bottom: 32px;
-      border: 2px solid gray;
-      z-index: 999;
-      background-color: rgba(0, 0, 0, 0.5);
-      color: azure;
-    }
-
-    #comment-canvas {
-      pointer-events: none;
-      position: absolute;
-      left: 0;
-      top: 0;
-      background-color: transparent;
-      z-index: 998;
-    }
-  </style>
+  <title>Walk-Sharing</title>
+  <link rel='stylesheet' href='/stylesheets/main.css' />
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="/javascripts/common.js"></script>
   <script src="/javascripts/comment.js"></script>
   <script>
-
-    var connection = {};
-
-    // pathnameの先頭のスラッシュを除去する
-    connection.pathname = location.pathname.indexOf('/') == 0 ? location.pathname.slice(1): location.pathname;
-
-    function createMap(latlng) {
-        var mapOptions = {
-          center: latlng,
-          zoom: 15,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-      console.log(3.5, mapOptions);
-        return new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-    }
-
-    function createPanorama(latlng, heading) {
-      var panoOptions = {
-        position: latlng,
-        addressControlOptions: {
-          position: google.maps.ControlPosition.TOP_RIGHT
-        },
-        linksControl: true,
-        panControl: true,
-        zoomControl: false,
-        enableCloseButton: false,
-        clickToGo: false,
-        disableDoubleClickZoom: false,
-        scrollwheel: false,
-        pov: {heading: heading, pitch: 0},
-        visible: true
-      };
-      return new google.maps.StreetViewPanorama(document.getElementById('streetview-canvas'), panoOptions);
-    }
-
-    function addPositionChangedListener(panorama, map) {
-      var timer = null;
-      var prevPano = null;
-      // 移動したときの処理
-      google.maps.event.addListener(panorama, "position_changed", function () {
-        timer && clearTimeout(timer);
-        // 右下マップの位置を更新
-        map.setCenter(panorama.getPosition());
-        // 分かれ道かどうか
-        var links = panorama.getLinks();
-        // if (links && links.length == 2) {
-        //   console.log("links.length == 2");
-        //   // 直進できる道の場合
-        //   console.log("PrevPano: " + prevPano);
-        //   console.log("NowPano: " + panorama.getPano());
-        //   console.log("Links[0].pano: " + links[0].pano);
-        //   console.log("Links[1].pano: " + links[1].pano);
-
-        //   var nextPano = links[links[0].pano == prevPano ? 1 : 0].pano;
-        //   console.log("NextPano: " + nextPano);
-        //   timer = setTimeout(function() {
-        //     console.log("fired.");
-        //     prevPano = panorama.getPano();
-        //     panorama.setPano(nextPano);
-        //   }, 10000);
-        // }
-//    if (links && links.length < 3) {
-//      var next = null;
-//      var heading = panorama.getPov().heading % 360;
-//      console.log("Now heading: " + heading);
-//      var delta = 180;
-//      links.forEach(function(link, i) {
-//        var tmp = Math.abs(heading - link.heading);
-//        console.log("tmp正規化前: " + tmp);
-//        if (tmp > 180) {
-//          tmp = 360 - tmp;
-//        }
-//        console.log("tmp正規化後: " + tmp);
-//        if (tmp <= delta) {
-//          delta = tmp;
-//          next = link;
-//        }
-//        console.log(delta);
-//      });
-//      console.log(delta);
-//      console.log(next);
-//      timer = setTimeout(function() {
-//        forward();
-//        panorama.setPano(link[0].pano);
-//      }, 1000);
-//    }
-        //TODO: 他のメンバに新しい位置を通知する
-        if(connection.socket) {
-          connection.socket.emit("moved", connection.pathname, panorama.getPosition(), getTimestamp());
-        }
-      });
-    }
-
-    function addPovChangedListener(panorama) {
-      // 視点を変更したときの処理
-      google.maps.event.addListener(panorama, "pov_changed", function () {
-        //TODO: 他のメンバに新しい視点を通知する
-        connection.socket.emit("view_changed", connection.pathname, panorama.getPov(), getTimestamp());
-      });
-    }
-
-    function forward() {
-      console.log("forward");
-      var e = document.createEvent("KeyboardEvent");
-      e.initKeyboardEvent("keypress", true, true, window, false, false, false, false, 38, 0);
-      window.dispatchEvent(e);
-    }
-
-    function initialClick(map) {
-      // ページ読み込み後、Clickせずともキーボード操作可能にする
-      google.maps.event.addListenerOnce(map, 'idle', function () {
-        var evt = document.createEvent("MouseEvents");
-        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, true, true, true, 0, null);
-        evt.enableKeyAccess = true;
-        document.querySelector('svg').dispatchEvent(evt);
-      });
-    }
 
     function initialize() {
       commentCanvasInit();
@@ -187,56 +21,19 @@
           return console.log("Geocode failed for the following reason: " + status);
         }
         var startLatlng = results[0].geometry.location;
+        var map = createMap(startLatlng);
+        var pov = {heading: 0, pitch: 0};
+        var panorama = createPanorama(startLatlng, pov, true);
+        map.setStreetView(panorama);
+        addPositionChangedListener(panorama, map, true);
+        addPovChangedListener(panorama);
 
         connection.socket.emit("drive", connection.pathname, startLatlng);
 
-        var map = createMap(startLatlng);
-        var panorama = createPanorama(startLatlng, 0);
-        map.setStreetView(panorama);
-        addPositionChangedListener(panorama, map);
-        addPovChangedListener(panorama);
         initialClick(map);
       });
     }
-
-    function sendChat() {
-      var message = $('#chat-input').val();
-      if (message == "") return false;
-      connection.sendMessage(message);
-      $('#chat-input').val("");
-    }
-
     google.maps.event.addDomListener(window, 'load', initialize);
-    connection.socket = io.connect();
-    connection.disconnect = function() {
-      connection.socket.emit("part", connection.pathname);
-    }
-    window.onbeforeunload = function(event){
-      connection.disconnect();
-    }
-    // チャット送信
-    connection.sendMessage = function(message) {
-      connection.socket.emit('chat_message', message, connection.pathname);
-    };
-    // チャット受信
-    connection.socket.on('chat_message', function(username, message) {
-      //TODO: 表示
-      console.log(username + ":" + message);
-      createComment(message);
-    });
-    connection.socket.on('party_changed', function(driver, party) {
-      console.log(driver);
-      console.log(party);
-      $("#party-canvas").empty();
-      $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
-      party.forEach(function(element) {
-        $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
-      });
-    });
-
-    getTimestamp = function() {
-      return (new Date()).getTime();
-    };
 
   </script>
 </head>
