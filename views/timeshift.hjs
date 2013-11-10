@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Walk-Sharing</title>
   <link rel='stylesheet' href='/stylesheets/main.css' />
+  <link href='http://fonts.googleapis.com/css?family=Share+Tech+Mono' rel='stylesheet' type='text/css'/>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyBqVrhEMODzAqARXW18d-5UMzMqEMbQgZ4&sensor=false"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -82,6 +83,7 @@
 </head>
 <body>
   <div id="caution" style="display: block;">You're in the time-shift mode.</div>
+  <div id="back-to-top"><a href="http://mesolabs.2013.nodeknockout.com">Walk Sharing</a></div>
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
   <div id="party-canvas"></div>

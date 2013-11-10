@@ -72,8 +72,11 @@ html, body, #streetview-canvas {
     top: 0px;
     text-align: center;
     z-index: 990;
-    background-color: #ffcaca;
+    background-color: #ff4444;
     display: none;
+    color: white;
+    font-size: 15pt;
+    font-family: 'Share Tech Mono';
 }
 
 #count {
@@ -210,3 +213,23 @@ html, body, #streetview-canvas {
     z-index: 999;
 }
 
+#count {
+    font-size: 10pt;
+    font-family: 'Share Tech Mono';
+}
+
+#back-to-top a{
+    color: white;
+    position: absolute;
+    top: 25px;
+    left: 10px;
+    z-index: 998;
+    font-size: 24pt;
+    font-family: 'Share Tech Mono';
+    text-decoration: none;
+    text-shadow: 4px 4px 1px #222;
+}
+
+#back-to-top a:hover{
+    text-decoration: underline;
+}
