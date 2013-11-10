@@ -47,10 +47,17 @@
   <div id="caution"></div>
   <div id="map-canvas"></div>
   <div id="streetview-canvas"></div>
-  <div id="party-canvas"></div>
+  <div id="party-canvas">
+    <ul id="party-member-list">
+      <li class="party-member-icon" style="backgroud-image: url({{icon}});">{{user}}</li>
+    </ul>
+  </div>
   <canvas id="comment-canvas"></canvas>
   <div id="join-area">
     <a id="join" href="#"><img src="/images/sign-in-with-twitter-gray.png" /></a>
+  </div>
+  <div id="rank-btn-wrap" style="bottom: 69px; left: 21px;">
+    <iframe id="rank-btn" src="http://nodeknockout.com/iframe/mesolabs" frameborder=0 scrolling=no allowtransparency=true width=115 height=25></iframe>
   </div>
   <div id="count"></div>
 </body>

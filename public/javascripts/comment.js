@@ -59,7 +59,7 @@ function showComments() {
   context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
   context.textAlign = 'left';
   context.textBaseline = 'textBaseline';
-  context.font = fontSize + 'px Arial';
+  context.font = fontSize + 'px Share Tech Mono';
 
   context.lineWidth = 4.0;
   context.strokeStyle = 'black';

@@ -94,15 +94,17 @@ connection.socket.on('chat_message', function(username, message) {
   createComment(message);
 });
 connection.socket.on('party_changed', function(driver, party) {
-  $("#party-canvas").empty();
+  $("#party-member-list").empty();
   if (driver) {
-    $("#party-canvas").append('<img src="' + driver.icon + '" />' + driver.name + '<br />');
+    $("#party-member-list").append(
+        '<li class="party-member-icon" style="background-image: url(' + driver.icon + ');">' +
+        '<span class="party-member-name">' + driver.name + '</span></li>');
   }
-  if(party){
-    party.forEach(function(element) {
-      $("#party-canvas").append('<img src="' + element.icon + '" />' + element.name + '<br />');
-    });
-  }
+  party.forEach(function(element) {
+    $("#party-member-list").append(
+        '<li class="party-member-icon" style="background-image: url(' + element.icon + ');">' +
+        '<span class="party-member-name">' + element.name + '</span></li>');
+  });
 });
 connection.socket.on('finished', function() {
   console.log("finished");
