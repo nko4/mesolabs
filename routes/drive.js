@@ -1,6 +1,6 @@
 exports.index = function(req, res) {
   var liveData = module.parent.exports.liveRooms[req.path.slice(1)];
-  var timeshiftData = module.parent.exports.timeshiftRooms[req.path.slice(1)];
+  var timeshiftData = module.parent.exports.timeshiftRecords.get(req.path.slice(1));
   var start = req.session.start;
   if (start) {
     // ドライバーが開始した場合

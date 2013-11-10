@@ -16,7 +16,8 @@
     "hjs": "*",
     "socket.io": "~0.9.16",
     "passport": "~0.1.17",
-    "passport-twitter": "~1.0.2"
+    "passport-twitter": "~1.0.2",
+    "dirty": "~0.9.7"
   },
   "engines": {
     "node": "0.10.x"

@@ -10,7 +10,6 @@ var ts = new TwitterStrategy({
     },
     function (token, tokenSecret, profile, done) {
       setImmediate(function () {
-        console.dir(profile);
         return done(null, {
           name: profile.username,
           icon: profile.photos[0].value,
@@ -41,7 +40,7 @@ exports.tweet = function (req, res) {
         'long': req.query.long},
       'application/json',
       function () {
-        console.log('DONE');
+        ;
       }
   );
   res.send();

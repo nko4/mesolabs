@@ -5,6 +5,7 @@ var drive = require('./routes/drive');
 var http = require('http');
 var path = require('path');
 var sio = require('socket.io');
+var dirty = require('dirty');
 var auth = require('./auth');
 
 var isProduction = (process.env.NODE_ENV === 'production');
@@ -58,9 +59,9 @@ var server = http.createServer(app).listen(port, function(err) {
 
 var io = sio.listen(server);
 var liveRooms = {};
-var timeshiftRooms = {};
+var timeshiftRecords = dirty('timeshiftRooms.db');
 module.exports.liveRooms = liveRooms;
-module.exports.timeshiftRooms = timeshiftRooms;
+module.exports.timeshiftRecords = timeshiftRecords;
 
 io.set('authorization', function(handshakeData, callback) {
   if (handshakeData.headers.cookie) {
@@ -68,8 +69,6 @@ io.set('authorization', function(handshakeData, callback) {
     cookie = require('express/node_modules/connect').utils.parseSignedCookies(cookie, app.get('secretKey'));
     var sessionId = cookie["connect.sid"];
     sessionStore.get(sessionId, function(err, session) {
-      console.log("sessionId", sessionId);
-      console.log("session", session);
       if (err || !session) return callback(err, false);
       handshakeData.session = session;
       callback(null, true);
@@ -84,7 +83,6 @@ io.sockets.on("connection", function(socket) {
   var user = session.passport.user;
   if(user && user.oauth_token)  delete user.oauth_token;
   if(user && user.oauth_token_secret) delete user.oauth_token_secret;
-  console.log("user:", user);
 
   // ドライバーが最初にやってきたときの処理
   socket.on("drive", function(room, startLocation) {
@@ -208,7 +206,7 @@ io.sockets.on("connection", function(socket) {
       timestamp: timestamp,
       event_type: "join",
       data: { 
-        user: user,
+        user: liveRooms[room].driver,
         party: array
       }
     });
@@ -239,13 +237,12 @@ io.sockets.on("connection", function(socket) {
           timestamp: timestamp,
           event_type: "disconnected",
           data: {
-            user: user,
+            user: liveRooms[room].driver,
             party: array
           }
         });
 
         if(user.name == liveRooms[room].driver.name) {
-          console.log("finished");
           // ドライバーが抜けた場合、そのセッションは終了
           liveRooms[room].position = liveRooms[room].start_position;
           liveRooms[room].pov = liveRooms[room].start_pov;
@@ -255,7 +252,7 @@ io.sockets.on("connection", function(socket) {
           });
           liveRooms[room].is_finished = true;
           socket.broadcast.to(room).emit("finished");
-          timeshiftRooms[room] = liveRooms[room];
+          timeshiftRecords.set(room, liveRooms[room]);
           delete liveRooms[room];
         } else {
           // 同乗者が抜けたことを通知
@@ -265,6 +262,14 @@ io.sockets.on("connection", function(socket) {
         if (liveRooms[room]) {
           // 観覧者が抜けた場合
           liveRooms[room].viewer--;
+          liveRooms[room].timestamp_history.push(timestamp);
+          liveRooms[room].history.push({
+            timestamp: timestamp,
+            event_type: "viewer_changed",
+            data: {
+              num: liveRooms[room].viewer
+            }
+          });
           socket.broadcast.to(room).emit("viewer_changed", liveRooms[room].viewer);
         }
       }
@@ -283,27 +288,25 @@ io.sockets.on("connection", function(socket) {
       liveData[id] = element;
     }
     var timeshiftData = {};
-    for (var id in liveRooms) {
-      var room = liveRooms[id];
+    timeshiftRecords.forEach(function(room) {
       var element = {
         position: room.position,
         pov: room.pov
       }
       timeshiftData[id] = element;
-    }
+    });
     socket.emit("push_liveRooms", liveData);
     socket.emit("push_timeshiftRooms", timeshiftData);
   });
 
   socket.on("request_history_list", function(room) {
-    if(!timeshiftRooms[room]) return;
-    socket.emit("history_timestamp", timeshiftRooms[room].start_time, timeshiftRooms[room].timestamp_history);
+    if(!timeshiftRecords.get(room)) return;
+    socket.emit("history_timestamp", timeshiftRecords.get(room).start_time, timeshiftRecords.get(room).timestamp_history);
   });
 
   socket.on("request_history", function(room, history_num) {
-    if(!timeshiftRooms[room] || !timeshiftRooms[room].history[history_num]) return;
-    var history_data = timeshiftRooms[room].history[history_num];
-    console.log(history_data.event_type, "EVENT_TYPE");
+    if(!timeshiftRecords.get(room) || !timeshiftRecords.get(room).history[history_num]) return;
+    var history_data = timeshiftRecords.get(room).history[history_num];
     if(history_data.event_type === "moved") {
       socket.emit("moved", history_data.data.position);
     } else if (history_data.event_type === "view_changed") {
