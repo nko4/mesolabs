@@ -33,18 +33,19 @@ function addPositionChangedListener(panorama, map, isDriver) {
     var position = panorama.getPosition();
 
     // 動いてないのに呼ばれることがあるので防御策
-    if (prev && prev.nb === position.nb && prev.ob === position.ob) {
+    if (prev && prev.lat() === position.lat() && prev.lng() === position.lng()) {
       prev = position;
       return;
     }
     prev = position;
 
     // 右下マップの位置を更新
-    map.setCenter(panorama.getPosition());
+    map.setCenter(position);
 
     // 他のメンバに新しい位置を通知する
     if(isDriver) {
-      connection.socket.emit("moved", connection.pathname, panorama.getPosition(), getTimestamp());
+      var pos = {lat: position.lat(), lng: position.lng()};
+      connection.socket.emit("moved", connection.pathname, pos, getTimestamp());
     }
   });
 }

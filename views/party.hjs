@@ -15,7 +15,7 @@
 
     function initialize() {
       commentCanvasInit();
-      var startLatlng = new google.maps.LatLng(parseFloat("{{nb}}"), parseFloat("{{ob}}"));
+      var startLatlng = new google.maps.LatLng(parseFloat("{{lat}}"), parseFloat("{{lng}}"));
       var map = createMap(startLatlng);
       var pov = {heading: parseInt("{{heading}}"), pitch: parseInt("{{pitch}}")};
       var panorama = createPanorama(startLatlng, pov, false);
@@ -24,7 +24,7 @@
 
       // 位置情報変更受信
       connection.socket.on('moved', function(position){
-        var latlng = new google.maps.LatLng(position.nb, position.ob);
+        var latlng = new google.maps.LatLng(position.lat, position.lng);
         panorama.setPosition(latlng);
       });
 
@@ -58,7 +58,7 @@
       });
 
       $('#tweet-post').click(function () {
-        $.get('/tweet?lat=' + panorama.position.nb + '&long=' + panorama.position.ob + '&msg=' + encodeURIComponent($('#tweet-input').val()));
+        $.get('/tweet?lat=' + panorama.position.lat() + '&long=' + panorama.position.lng() + '&msg=' + encodeURIComponent($('#tweet-input').val()));
         $('#tweet-input').val('');
         $('#tweet-box').animate(
             {'height': '0px'},

@@ -24,8 +24,8 @@ exports.index = function(req, res) {
         // ROOMがクエリパラメータに入っている = Twitter認証ボタンを押して認証した
         req.session.room = null;
         res.render('party', {
-          nb: liveData.position.nb,
-          ob: liveData.position.ob,
+          lat: liveData.position.lat,
+          lng: liveData.position.lng,
           heading: liveData.pov.heading,
           pitch: liveData.pov.pitch,
           user: req.session.passport.user.name,
@@ -34,8 +34,8 @@ exports.index = function(req, res) {
       } else {
         // 観覧者の場合
         res.render('viewer', {
-          nb: liveData.position.nb,
-          ob: liveData.position.ob,
+          lat: liveData.position.lat,
+          lng: liveData.position.lng,
           heading: liveData.pov.heading,
           pitch: liveData.pov.pitch
         });
@@ -43,8 +43,8 @@ exports.index = function(req, res) {
     } else if (timeshiftData) {
       // タイムシフト再生時の処理
       res.render('timeshift', {
-        nb: timeshiftData.position.nb,
-        ob: timeshiftData.position.ob,
+        lat: timeshiftData.position.lat,
+        lng: timeshiftData.position.lng,
         heading: timeshiftData.pov.heading,
         pitch: timeshiftData.pov.pitch
       });

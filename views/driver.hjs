@@ -70,7 +70,7 @@
           });
 
           $('#tweet-post').click(function () {
-            $.get('/tweet?lat=' + panorama.position.nb + '&long=' + panorama.position.ob + '&msg=' + encodeURIComponent($('#tweet-input').val()));
+            $.get('/tweet?lat=' + panorama.position.lat() + '&long=' + panorama.position.lng() + '&msg=' + encodeURIComponent($('#tweet-input').val()));
             $('#tweet-input').val('');
             $('#tweet-box').animate(
                 {'height': '0px'},
@@ -82,7 +82,7 @@
             );
           });
 
-          connection.socket.emit("drive", connection.pathname, startLatlng);
+          connection.socket.emit("drive", connection.pathname, {lat: startLatlng.lat(), lng: startLatlng.lng()});
           initialClick(map);
         });
       });
